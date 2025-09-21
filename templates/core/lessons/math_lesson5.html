@@ -1,0 +1,102 @@
+{% extends "shared/base.html" %}
+{% block title %}Lesson 5: Geometry Basics{% endblock %}
+{% block content %}
+
+<style>
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #e0f2fe, #bae6fd);
+    margin: 0; padding: 0;
+  }
+
+  .container {
+    max-width: 800px; margin: auto; padding: 30px; text-align: center;
+  }
+
+  /* Intro Page */
+  .intro {
+    background: white; padding: 50px;
+    border-radius: 20px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    margin-bottom: 30px;
+    transition: transform 0.3s ease;
+  }
+  .intro:hover { transform: scale(1.02); }
+  .intro h1 { font-size: 2rem; margin-bottom: 15px; color: #0c4a6e; }
+  .intro p { color: #0369a1; font-size: 1.1rem; }
+  .start-btn {
+    margin-top: 20px; padding: 12px 30px;
+    background: linear-gradient(90deg, #3b82f6, #2563eb);
+    color: white; font-weight: bold; border: none; border-radius: 50px;
+    cursor: pointer; transition: 0.3s;
+  }
+  .start-btn:hover { background: linear-gradient(90deg, #1d4ed8, #1e40af); transform: scale(1.05); }
+
+  /* Game Page */
+  .game {
+    display: none; background: white;
+    padding: 40px; border-radius: 20px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  }
+  h1 { color: #0c4a6e; margin-bottom: 20px; }
+  .question { font-size: 1.2rem; margin-bottom: 20px; color: #0c4a6e; }
+
+  .option {
+    display: block; margin: 10px auto;
+    padding: 12px 25px; width: 65%;
+    background: #bfdbfe; border-radius: 12px;
+    cursor: pointer; transition: 0.2s; font-weight: 500;
+  }
+  .option:hover { background: #93c5fd; }
+
+  .back-btn {
+    margin-top: 25px; padding: 10px 25px;
+    background: #ef4444; color: white;
+    border: none; border-radius: 12px; cursor: pointer;
+  }
+</style>
+
+<div class="container">
+  <!-- Intro Page -->
+  <div class="intro" id="intro-page">
+    <h1>Welcome to Geometry Basics Game 📐</h1>
+    <p>Test your knowledge about angles, lines, and line segments with fun questions!</p>
+    <button class="start-btn" onclick="startGame()">Start Game</button>
+  </div>
+
+  <!-- Game Page -->
+  <div class="game" id="game-page">
+    <h1>Lesson 5: Geometry Basics</h1>
+    <p class="question">How many degrees are there in a right angle?</p>
+
+    <div class="option" onclick="checkAnswer(this, '90')">45°</div>
+    <div class="option" onclick="checkAnswer(this, '90')">90°</div>
+    <div class="option" onclick="checkAnswer(this, '90')">180°</div>
+    <div class="option" onclick="checkAnswer(this, '90')">360°</div>
+
+    <button class="back-btn" onclick="goBack()">Back</button>
+  </div>
+</div>
+
+<script>
+  function startGame() {
+    document.getElementById("intro-page").style.display = "none";
+    document.getElementById("game-page").style.display = "block";
+  }
+
+  function checkAnswer(el, correct) {
+    if (el.innerText === correct) {
+      el.style.background = "#bbf7d0"; // green
+      alert("✅ Correct!");
+    } else {
+      el.style.background = "#fecaca"; // red
+      alert("❌ Wrong, Try Again!");
+    }
+  }
+
+  function goBack() {
+    window.history.back();
+  }
+</script>
+
+{% endblock %}

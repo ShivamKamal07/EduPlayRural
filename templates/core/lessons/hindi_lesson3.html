@@ -1,0 +1,280 @@
+{% extends 'shared/base.html' %}
+{% block title %}Grammar Challenge Game{% endblock %}
+
+{% block content %}
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(#ffe6e6, #ffb3b3);
+  text-align: center;
+  overflow-x: hidden;
+}
+h1 {
+  background-color: #d32f2f;
+  color: white;
+  margin: 0;
+  padding: 20px;
+  font-size: 32px;
+}
+/* Introduction card style */
+.intro {
+  background: linear-gradient(135deg, #f0e6ff, #d1b3ff);
+  color: #4b0082;
+  width: 80%;
+  max-width: 700px;
+  margin: 20px auto;
+  padding: 25px;
+  border-radius: 18px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+.intro h2 {
+  color: #6a1b9a;
+}
+.intro button {
+  padding: 12px 30px;
+  font-size: 18px;
+  background: #6a1b9a;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: 0.3s;
+}
+.intro button:hover {
+  background: #4b0082;
+}
+
+#gameArea {
+  display: none;
+  position: relative;
+  height: 500px;
+  margin-top: 20px;
+}
+.bubble {
+  position: absolute;
+  background-color: #ff7043;
+  color: white;
+  border-radius: 50%;
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+.bubble:hover {
+  transform: scale(1.1);
+}
+
+.controls {
+  margin-top: 20px;
+}
+.controls button {
+  padding: 10px 20px;
+  margin: 5px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 16px;
+  background: #d32f2f;
+  color: white;
+  transition: 0.3s;
+}
+.controls button:hover {
+  background: #9a0007;
+}
+
+#score {
+  margin-top: 15px;
+  font-size: 22px;
+  font-weight: bold;
+  color: #333;
+}
+#message {
+  font-size: 26px;
+  color: #1b5e20;
+  font-weight: bold;
+  margin-top: 10px;
+  white-space: pre-line;
+}
+</style>
+
+<h1>📚 Grammar Challenge Game</h1>
+
+<div class="intro" id="intro">
+  <h2>परिचय</h2>
+  <p>इस खेल में आपकी चुनौती है:</p>
+  <ul style="text-align:left;">
+    <li>प्रत्येक व्याकरण (Grammar) प्रश्न पढ़ें।</li>
+    <li>सही उत्तर वाले bubble पर क्लिक करें।</li>
+    <li>सही उत्तर पर +10 अंक, गलत उत्तर पर -5 अंक।</li>
+    <li>अधिक अंक = बेहतर प्रदर्शन।</li>
+  </ul>
+  <button onclick="startGame()">खेल शुरू करें</button>
+</div>
+
+<div id="gameArea"></div>
+<div id="score">Score: 0</div>
+<div id="message"></div>
+
+<div class="controls" id="controls" style="display:none;">
+  <button onclick="stopGame()">Stop</button>
+  <button onclick="backToIntro()">Back</button>
+  <button onclick="restartLevel()">Restart</button>
+</div>
+
+<script>
+const level1 = [
+  { question: "कौन सा वाक्य सही है?", options: ["मैं बाजार जा रहा हूँ।", "मैं बाजार जा रही हूँ।", "मैं बाजार जाता हूँ।"], answer: "मैं बाजार जा रहा हूँ।" },
+  { question: "सही शब्द चुनें: 'राम ____ पढ़ता है।'", options: ["अच्छा", "अच्छी", "अच्छे"], answer: "अच्छा" },
+  { question: "सही वाक्य का चयन करें:", options: ["वह स्कूल गई।", "वह स्कूल गया।", "वह स्कूल जाते।"], answer: "वह स्कूल गया।" },
+  { question: "सही रूप चुनें: 'वे लोग ____ आए।'", options: ["शादी", "शादियाँ", "शादीयाँ"], answer: "शादी" },
+  { question: "सही विकल्प चुनें: 'मैंने कल ____ देखा।'", options: ["फिल्म", "फिल्में", "फिल्मों"], answer: "फिल्म" }
+];
+
+const level2 = [
+  { question: "कौन सा वाक्य सही है?", options: ["तुम खेल रहे हो।", "तुम खेल रही हो।", "तुम खेलता हो।"], answer: "तुम खेल रहे हो।" },
+  { question: "सही शब्द चुनें: 'संदीप ____ गया।'", options: ["स्कूल", "स्कूली", "स्कूलों"], answer: "स्कूल" },
+  { question: "सही वाक्य का चयन करें:", options: ["मैंने किताब पढ़ी।", "मैंने किताब पढ़ा।", "मैंने किताब पढ़ते।"], answer: "मैंने किताब पढ़ी।" },
+  { question: "सही रूप चुनें: 'वे लोग ____ आए।'", options: ["मेले", "मेला", "मेलों"], answer: "मेला" },
+  { question: "सही विकल्प चुनें: 'रमेश ने कल ____ खेला।'", options: ["खेल", "खेलें", "खेलों"], answer: "खेल" }
+];
+
+let questions = level1;
+let score = 0;
+let currentQuestion = 0;
+const gameArea = document.getElementById("gameArea");
+const scoreEl = document.getElementById("score");
+const messageEl = document.getElementById("message");
+
+function startGame() {
+  document.getElementById("intro").style.display = "none";
+  gameArea.style.display = "block";
+  document.getElementById("controls").style.display = "block";
+  currentQuestion = 0;
+  score = 0;
+  scoreEl.innerText = "Score: " + score;
+  showQuestion();
+}
+
+function stopGame(){
+  messageEl.innerText = `⏹️ खेल रोक दिया गया!\nFinal Score: ${score}`;
+  gameArea.innerHTML = "";
+}
+
+function backToIntro(){
+  document.getElementById("intro").style.display = "block";
+  gameArea.style.display = "none";
+  document.getElementById("controls").style.display = "none";
+  score = 0;
+  scoreEl.innerText = "Score: 0";
+  messageEl.innerText = "";
+  questions = level1; // Reset to level 1
+}
+
+function restartLevel(){
+  score = 0;
+  currentQuestion = 0;
+  scoreEl.innerText = "Score: 0";
+  showQuestion();
+}
+
+function showQuestion() {
+  gameArea.innerHTML = "";
+  messageEl.innerText = "";
+
+  if(currentQuestion >= questions.length){
+    gameArea.innerHTML = "";
+    messageEl.style.color = "#1b5e20";
+    messageEl.style.fontSize = "28px";
+    messageEl.innerText = `🎉 Game Over!\nआपका Final Score: ${score}\nआपने Grammar में बहुत अच्छे प्रयास किए! ✅`;
+
+    // Buttons container
+    const btnContainer = document.createElement("div");
+    btnContainer.style.marginTop = "20px";
+
+    // Restart button
+    const restartBtn = document.createElement("button");
+    restartBtn.innerText = "🔄 Restart Game";
+    restartBtn.style.padding = "12px 25px";
+    restartBtn.style.margin = "10px";
+    restartBtn.style.fontSize = "18px";
+    restartBtn.style.background = "#d32f2f";
+    restartBtn.style.color = "white";
+    restartBtn.style.border = "none";
+    restartBtn.style.borderRadius = "10px";
+    restartBtn.style.cursor = "pointer";
+    restartBtn.onclick = startGame;
+
+    // Next Level button
+    const nextBtn = document.createElement("button");
+    nextBtn.innerText = "⏭ Next Level";
+    nextBtn.style.padding = "12px 25px";
+    nextBtn.style.margin = "10px";
+    nextBtn.style.fontSize = "18px";
+    nextBtn.style.background = "#388e3c";
+    nextBtn.style.color = "white";
+    nextBtn.style.border = "none";
+    nextBtn.style.borderRadius = "10px";
+    nextBtn.style.cursor = "pointer";
+    nextBtn.onclick = ()=> {
+      questions = level2;
+      score = 0;
+      currentQuestion = 0;
+      scoreEl.innerText = "Score: 0";
+      messageEl.innerText = "";
+      showQuestion();
+    };
+
+    btnContainer.appendChild(restartBtn);
+    btnContainer.appendChild(nextBtn);
+    gameArea.appendChild(btnContainer);
+
+    return;
+  }
+
+  const q = questions[currentQuestion];
+  const questionDiv = document.createElement("div");
+  questionDiv.style.fontSize = "20px";
+  questionDiv.style.marginBottom = "15px";
+  questionDiv.innerText = q.question;
+  gameArea.appendChild(questionDiv);
+
+  const lanes = [50, 200, 350];
+  q.options.forEach((opt,index)=>{
+    const bubble = document.createElement("div");
+    bubble.classList.add("bubble");
+    bubble.style.top = lanes[index]+"px";
+    bubble.style.left = Math.random() * 600 + "px";
+    bubble.innerText = opt;
+    gameArea.appendChild(bubble);
+
+    let posX = parseInt(bubble.style.left);
+    const move = setInterval(()=>{
+      posX += Math.random()*2;
+      if(posX > 700) posX = -120;
+      bubble.style.left = posX + "px";
+    },30);
+
+    bubble.onclick = ()=>{
+      clearInterval(move);
+      if(opt === q.answer){
+        score +=10;
+        messageEl.innerText = "✅ सही!";
+      } else {
+        score -=5;
+        messageEl.innerText = "❌ गलत!";
+      }
+      scoreEl.innerText = "Score: "+score;
+      currentQuestion++;
+      setTimeout(showQuestion, 1000);
+    }
+  });
+}
+</script>
+{% endblock %}

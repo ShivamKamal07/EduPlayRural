@@ -1,0 +1,148 @@
+{% extends 'shared/base.html' %}
+{% block title %}Smart Notebook{% endblock %}
+
+{% block content %}
+<div class="content-header">
+  <div class="container-fluid">
+    <div class="row mb-2">
+      <div class="col-sm-6">
+        <h1 class="m-0"><i class="fas fa-book"></i> Smart Notebook</h1>
+      </div>
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-right">
+          <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+          <li class="breadcrumb-item active">Smart Notebook</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section class="content">
+  <div class="container-fluid">
+
+    <!-- Notes Section -->
+    <div class="card card-outline card-primary shadow-sm mb-4">
+      <div class="card-header">
+        <h3 class="card-title"><i class="fas fa-keyboard"></i> Notes</h3>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <!-- Left: Note Input -->
+          <div class="col-md-6">
+            <textarea id="noteArea" class="form-control mb-3" rows="10" placeholder="Write your notes here..."></textarea>
+            <button class="btn btn-success btn-sm" onclick="saveNotes()"><i class="fas fa-save"></i> Save</button>
+            <button class="btn btn-danger btn-sm" onclick="clearNotes()"><i class="fas fa-trash"></i> Clear</button>
+          </div>
+
+          <!-- Right: Saved Notes -->
+          <div class="col-md-6">
+            <h5><i class="fas fa-sticky-note"></i> Saved Notes</h5>
+            <div id="savedNotes" class="p-3 border rounded bg-light" style="height:250px; overflow-y:auto;">
+              <em>No saved notes yet.</em>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Drawing Pad -->
+    <div class="card card-outline card-info shadow-sm">
+      <div class="card-header">
+        <h3 class="card-title"><i class="fas fa-paint-brush"></i> Drawing Pad</h3>
+      </div>
+      <div class="card-body text-center">
+        <div class="mb-3 d-flex justify-content-center gap-3">
+          <input type="color" id="colorPicker" class="form-control-color me-2" value="#000000">
+          <input type="range" id="brushSize" min="1" max="20" value="3" class="form-range" style="width:150px;">
+          <label>Brush Size</label>
+        </div>
+        <canvas id="drawPad" width="700" height="350" style="border:1px solid #ccc; border-radius:8px; background:white;"></canvas>
+        <div class="mt-3">
+          <button class="btn btn-secondary btn-sm" onclick="clearCanvas()"><i class="fas fa-eraser"></i> Clear</button>
+          <button class="btn btn-primary btn-sm" onclick="downloadCanvas()"><i class="fas fa-download"></i> Download</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<script>
+// ✅ Notes Logic
+function saveNotes() {
+  const notes = document.getElementById("noteArea").value.trim();
+  if (!notes) return alert("Write something first!");
+
+  let notesList = JSON.parse(localStorage.getItem("studentNotes") || "[]");
+  notesList.push(notes);
+  localStorage.setItem("studentNotes", JSON.stringify(notesList));
+  loadNotes();
+  document.getElementById("noteArea").value = "";
+}
+
+function clearNotes() {
+  localStorage.removeItem("studentNotes");
+  loadNotes();
+}
+
+function loadNotes() {
+  const savedNotes = JSON.parse(localStorage.getItem("studentNotes") || "[]");
+  const container = document.getElementById("savedNotes");
+  container.innerHTML = savedNotes.length 
+    ? savedNotes.map((n, i) => `<p><b>Note ${i+1}:</b> ${n}</p>`).join("") 
+    : "<em>No saved notes yet.</em>";
+}
+window.onload = loadNotes;
+
+// ✅ Drawing Pad Logic (Smooth Lines)
+let canvas = document.getElementById("drawPad");
+let ctx = canvas.getContext("2d");
+let drawing = false;
+let color = document.getElementById("colorPicker").value;
+let brush = document.getElementById("brushSize").value;
+
+document.getElementById("colorPicker").addEventListener("change", e => color = e.target.value);
+document.getElementById("brushSize").addEventListener("input", e => brush = e.target.value);
+
+canvas.addEventListener("mousedown", startDrawing);
+canvas.addEventListener("mouseup", stopDrawing);
+canvas.addEventListener("mouseout", stopDrawing);
+canvas.addEventListener("mousemove", draw);
+
+function startDrawing(e) {
+  drawing = true;
+  ctx.beginPath();
+  ctx.moveTo(e.offsetX, e.offsetY); // starting point
+}
+
+function stopDrawing() {
+  drawing = false;
+  ctx.beginPath(); // reset path
+}
+
+function draw(e) {
+  if (!drawing) return;
+  ctx.lineWidth = brush;
+  ctx.lineCap = "round";   // makes line rounded
+  ctx.strokeStyle = color;
+
+  ctx.lineTo(e.offsetX, e.offsetY);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(e.offsetX, e.offsetY);
+}
+
+function clearCanvas() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+function downloadCanvas() {
+  let link = document.createElement("a");
+  link.download = "drawing.png";
+  link.href = canvas.toDataURL();
+  link.click();
+}
+
+</script>
+{% endblock %}

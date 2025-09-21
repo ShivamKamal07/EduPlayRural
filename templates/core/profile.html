@@ -1,0 +1,141 @@
+{% extends 'shared/base.html' %}
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+<style>
+    /* Hover effect for cards */
+    .card {
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+        border: 1px solid #007bff;
+        background-color: #f0f8ff; /* light blue hover background */
+    }
+
+    /* Hover effect for subject info-box */
+    .info-box {
+        transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+        cursor: pointer;
+    }
+    .info-box:hover {
+        transform: scale(1.05);
+        box-shadow: 0 6px 18px rgba(0, 123, 255, 0.3);
+        background-color: #e6f2ff; /* light hover background */
+    }
+
+    /* Book icon zoom + color change */
+    .info-box-icon i {
+        transition: transform 0.3s ease, color 0.3s ease;
+    }
+    .info-box:hover .info-box-icon i {
+        transform: scale(1.3);
+        color: #ffc107; /* gold/yellow highlight */
+    }
+</style>
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0"><i class="fas fa-user-circle"></i> Profile</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Profile</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+
+            <!-- Left Column -->
+            <div class="col-md-4">
+                <!-- Profile Card -->
+                <div class="card card-primary card-outline shadow-sm">
+                    <div class="card-body box-profile text-center">
+                        <img class="profile-user-img img-fluid img-circle mb-3"
+                            src="https://cdn-icons-png.flaticon.com/128/16683/16683419.png" alt="User profile picture"
+                            style="width:110px;">
+
+                        <h3 class="profile-username">{{ profile.student_name }}</h3>
+                        <p class="text-muted">{{ profile.school_name }}</p>
+
+                        <ul class="list-group list-group-unbordered mb-3 text-left small">
+                            <li class="list-group-item"><b>Roll No:</b> <span class="float-right">{{ profile.roll_number   }}</span></li>
+                            <li class="list-group-item"><b>Father’s Name:</b> <span class="float-right">{{ profile.father_name }}</span></li>
+                            <li class="list-group-item"><b>Class:</b> <span class="float-right">{{ profile.student_class }}</span></li>
+                            <li class="list-group-item"><b>Board:</b> <span class="float-right">{{ profile.board|upper }}</span></li>
+                            <li class="list-group-item"><b>Language:</b> <span class="float-right">{{ profile.get_language_display }}</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="col-md-8">
+
+                <!-- Contact Info -->
+                <div class="card card-info card-outline shadow-sm mb-3">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-address-book"></i> Contact Details</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-2"><b>Mobile:</b> {{ profile.mobile_number }}</div>
+                            <div class="col-md-6 mb-2"><b>Address:</b> {{ profile.address }} ({{ profile.pincode }})
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Subjects -->
+                <div class="card card-success card-outline shadow-sm">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-book"></i> Subjects</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            {% if profile.subjects.exists %}
+                            {% for subj in profile.subjects.all %}
+                            <div class="col-md-4 col-sm-6 mb-3">
+                                <div class="info-box bg-light shadow-sm">
+                                    <span class="info-box-icon bg-primary"><i class="fas fa-book-open"></i></span>
+                                    <div class="info-box-content">
+                                        <span class="info-box-text font-weight-bold">{{ subj.name }}</span>
+                                        <span class="info-box-number text-muted">Progress: 0%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                            {% else %}
+                            {% for subj in default_subjects %}
+                            <div class="col-md-4 col-sm-6 mb-3">
+                                <div class="info-box bg-light shadow-sm">
+                                    <span class="info-box-icon bg-secondary"><i class="fas fa-book"></i></span>
+                                    <div class="info-box-content">
+                                        <span class="info-box-text font-weight-bold">{{ subj }}</span>
+                                        <span class="info-box-number text-muted">Progress: 0%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                            {% endif %}
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</section>
+{% endblock %}

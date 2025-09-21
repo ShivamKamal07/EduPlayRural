@@ -1,0 +1,187 @@
+{% extends "shared/base.html" %}
+{% block title %}Chemistry Lesson 4{% endblock %}
+{% block content %}
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #e0f7fa;
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+}
+.game-container {
+    background: #ffffff;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0px 5px 20px rgba(0,0,0,0.1);
+    max-width: 600px;
+    width: 100%;
+    text-align: center;
+}
+h1 {
+    color: #006064;
+}
+button {
+    margin: 5px;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    background-color: #00838f;
+    color: white;
+    transition: 0.3s;
+}
+button:hover {
+    background-color: #005662;
+}
+.options button {
+    display: block;
+    width: 80%;
+    margin: 10px auto;
+    background-color: #26c6da;
+}
+.options button:hover {
+    background-color: #00acc1;
+}
+#message {
+    font-size: 18px;
+    margin: 10px 0;
+    color: #d32f2f;
+}
+.intro {
+    font-size: 16px;
+    margin-bottom: 20px;
+    color: #004d40;
+}
+</style>
+
+<div class="game-container">
+    <h1>Inorganic Chemistry Game</h1>
+    <div id="level-info">Introduction</div>
+    <div id="question">
+        <div class="intro">
+            Welcome to the Inorganic Chemistry game! <br>
+            Test your knowledge on elements, compounds, and reactions. <br>
+            Press Start to begin the quiz!
+        </div>
+    </div>
+    <div class="options" id="options"></div>
+    <div id="message"></div>
+    <div>
+        <button id="startBtn">Start</button>
+        <button id="stopBtn">Stop</button>
+        <button id="nextBtn">Next Level</button>
+        <button id="backBtn">Back</button>
+    </div>
+</div>
+
+<script>
+const quizData = [
+    // Level 1: Elements
+    [
+        { question: "Symbol of Sodium?", options: ["Na", "S", "N", "So"], answer: "Na" },
+        { question: "Atomic number of Oxygen?", options: ["6", "8", "16", "12"], answer: "8" }
+    ],
+    // Level 2: Compounds
+    [
+        { question: "H2O is?", options: ["Water", "Hydrogen peroxide", "Hydroxide", "Ozone"], answer: "Water" },
+        { question: "NaCl is?", options: ["Salt", "Sugar", "Baking Soda", "Vinegar"], answer: "Salt" }
+    ],
+    // Level 3: Reactions
+    [
+        { question: "Reaction of acid + base produces?", options: ["Salt + Water", "Hydrogen", "Oxygen", "Carbon Dioxide"], answer: "Salt + Water" },
+        { question: "Combustion of Magnesium produces?", options: ["MgO", "MgCO3", "MgCl2", "MgSO4"], answer: "MgO" }
+    ]
+];
+
+let currentLevel = -1; // -1 is intro
+let currentQuestion = 0;
+let score = 0;
+let gameStarted = false;
+
+const questionEl = document.getElementById("question");
+const optionsEl = document.getElementById("options");
+const messageEl = document.getElementById("message");
+const levelInfoEl = document.getElementById("level-info");
+
+document.getElementById("startBtn").addEventListener("click", startGame);
+document.getElementById("stopBtn").addEventListener("click", stopGame);
+document.getElementById("nextBtn").addEventListener("click", nextLevel);
+document.getElementById("backBtn").addEventListener("click", previousLevel);
+
+function startGame() {
+    if(currentLevel === -1) currentLevel = 0;
+    gameStarted = true;
+    currentQuestion = 0;
+    score = 0;
+    showQuestion();
+    messageEl.textContent = "";
+}
+
+function stopGame() {
+    gameStarted = false;
+    questionEl.innerHTML = "<div class='intro'>Game stopped. Press Start to play again.</div>";
+    optionsEl.innerHTML = "";
+    messageEl.textContent = `Your score: ${score}`;
+}
+
+function showQuestion() {
+    if (!gameStarted) return;
+
+    const questionData = quizData[currentLevel][currentQuestion];
+    questionEl.textContent = questionData.question;
+    optionsEl.innerHTML = "";
+    questionData.options.forEach(option => {
+        const btn = document.createElement("button");
+        btn.textContent = option;
+        btn.addEventListener("click", () => checkAnswer(option));
+        optionsEl.appendChild(btn);
+    });
+    levelInfoEl.textContent = "Level " + (currentLevel + 1);
+}
+
+function checkAnswer(selected) {
+    const questionData = quizData[currentLevel][currentQuestion];
+    if (selected === questionData.answer) {
+        messageEl.textContent = "✅ Correct!";
+        score++;
+    } else {
+        messageEl.textContent = "❌ Wrong! Correct answer: " + questionData.answer;
+    }
+    currentQuestion++;
+    if (currentQuestion < quizData[currentLevel].length) {
+        setTimeout(showQuestion, 1000);
+    } else {
+        messageEl.textContent += ` 🎉 Level completed! Score: ${score}`;
+        optionsEl.innerHTML = "";
+    }
+}
+
+function nextLevel() {
+    if (currentLevel < quizData.length - 1) {
+        currentLevel++;
+        startGame();
+    } else {
+        messageEl.textContent = "🚀 No more levels!";
+    }
+}
+
+function previousLevel() {
+    if (currentLevel > 0) {
+        currentLevel--;
+        startGame();
+    } else {
+        currentLevel = -1; // Back to intro
+        questionEl.innerHTML = `<div class="intro">
+            Welcome to the Inorganic Chemistry game! <br>
+            Test your knowledge on elements, compounds, and reactions. <br>
+            Press Start to begin the quiz!
+        </div>`;
+        optionsEl.innerHTML = "";
+        messageEl.textContent = "";
+        levelInfoEl.textContent = "Introduction";
+    }
+}
+</script>
+{% endblock %}

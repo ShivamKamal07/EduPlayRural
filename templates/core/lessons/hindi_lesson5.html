@@ -1,0 +1,261 @@
+{% extends 'shared/base.html' %}
+{% block title %}Meaning Guess Subway Runner{% endblock %}
+
+{% block content %}
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(#c0f0c0, #80c080);
+  overflow: hidden;
+  text-align: center;
+}
+h1 {
+  background-color: #4caf50;
+  color: white;
+  margin: 0;
+  padding: 20px;
+  font-size: 32px;
+}
+.intro {
+  background: white;
+  width: 80%;
+  max-width: 700px;
+  margin: 20px auto;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+}
+.intro button {
+  padding: 12px 30px;
+  font-size: 18px;
+  background: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  margin-top: 15px;
+}
+#gameArea {
+  display: none;
+  position: relative;
+  height: 400px;
+  width: 100%;
+  background: linear-gradient(#a0d0ff, #40a0ff);
+  overflow: hidden;
+  border-top: 5px solid #333;
+}
+#player {
+  position: absolute;
+  bottom: 20px;
+  left: 50px;
+  width: 40px;
+  height: 40px;
+  background-color: #ff5722;
+  border-radius: 8px;
+}
+.wordBlock {
+  position: absolute;
+  top: 0;
+  right: -200px;
+  background-color: yellow;
+  padding: 10px 15px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+#score {
+  margin-top: 10px;
+  font-size: 22px;
+  font-weight: bold;
+  color: #333;
+}
+#message {
+  font-size: 26px;
+  color: #e91e63;
+  font-weight: bold;
+  margin-top: 15px;
+}
+#currentWord {
+  font-size: 28px;
+  font-weight: bold;
+  color: #fff;
+  margin: 15px 0;
+  text-shadow: 1px 1px 2px #333;
+}
+.controls {
+  margin-top: 20px;
+}
+.controls button {
+  padding: 10px 20px;
+  margin: 5px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 16px;
+  background: #4caf50;
+  color: white;
+  transition: 0.3s;
+}
+.controls button:hover {
+  background: #388e3c;
+}
+</style>
+
+<h1>🚀 Meaning Guess Subway Runner</h1>
+
+<div class="intro" id="intro">
+  <h2>परिचय</h2>
+  <p>ऊपर से आने वाले शब्दों के सही अर्थ को चुनें।</p>
+  <ul style="text-align:left;">
+    <li>Player fixed left side में रहेगा।</li>
+    <li>Right से left आते हुए options पर क्लिक करें।</li>
+    <li>सही option पर +10 score, गलत पर -5 score।</li>
+    <li>अधिक score = बेहतर performance।</li>
+  </ul>
+  <button onclick="startGame()">खेल शुरू करें</button>
+</div>
+
+<div id="gameArea">
+  <div id="player"></div>
+  <div id="currentWord"></div>
+</div>
+
+<div id="score">Score: 0</div>
+<div id="message"></div>
+
+<div class="controls" id="controls" style="display:none;">
+  <button onclick="stopGame()">Stop</button>
+  <button onclick="backToIntro()">Back</button>
+  <button onclick="restartLevel()">Restart</button>
+  <button onclick="nextLevel()">Next Level</button>
+</div>
+
+<script>
+const level1 = [
+  { word: "नाक कटना", meaning: "अपमान होना" },
+  { word: "आसमान छूना", meaning: "बहुत उन्नति करना" },
+  { word: "चेहरा खिल उठना", meaning: "खुश होना" },
+  { word: "नाकों चने चबाना", meaning: "कष्ट उठाना" },
+  { word: "नाक में दम करना", meaning: "परेशान करना" }
+];
+
+const level2 = [
+  { word: "दिल जीतना", meaning: "किसी का मन खुश करना" },
+  { word: "हाथ धोना", meaning: "जिम्मेदारी से बचना" },
+  { word: "पानी-पानी होना", meaning: "बहुत शर्मिंदा होना" },
+  { word: "आँखों का तारा", meaning: "बहुत प्यारा" },
+  { word: "सिर चढ़ना", meaning: "अभिमान होना" }
+];
+
+let words = level1;
+let score = 0;
+let currentWordObj;
+let gameInterval;
+
+const gameArea = document.getElementById("gameArea");
+const currentWordEl = document.getElementById("currentWord");
+const scoreEl = document.getElementById("score");
+const messageEl = document.getElementById("message");
+
+function startGame() {
+  document.getElementById("intro").style.display = "none";
+  gameArea.style.display = "block";
+  document.getElementById("controls").style.display = "block";
+  score = 0;
+  scoreEl.innerText = "Score: " + score;
+  nextWord();
+  gameInterval = setInterval(nextWord, 4000);
+}
+
+function stopGame() {
+  clearInterval(gameInterval);
+  messageEl.innerText = `⏹️ खेल रोक दिया गया!\nFinal Score: ${score}`;
+  const existing = document.querySelectorAll(".wordBlock");
+  existing.forEach(el => gameArea.removeChild(el));
+}
+
+function backToIntro() {
+  clearInterval(gameInterval);
+  document.getElementById("intro").style.display = "block";
+  gameArea.style.display = "none";
+  document.getElementById("controls").style.display = "none";
+  score = 0;
+  scoreEl.innerText = "Score: 0";
+  messageEl.innerText = "";
+  words = level1;
+}
+
+function restartLevel() {
+  clearInterval(gameInterval);
+  score = 0;
+  scoreEl.innerText = "Score: 0";
+  nextWord();
+  gameInterval = setInterval(nextWord, 4000);
+}
+
+function nextLevel() {
+  clearInterval(gameInterval);
+  words = level2;
+  score = 0;
+  scoreEl.innerText = "Score: 0";
+  messageEl.innerText = "";
+  nextWord();
+  gameInterval = setInterval(nextWord, 4000);
+}
+
+function nextWord() {
+  // Clear previous blocks
+  const existing = document.querySelectorAll(".wordBlock");
+  existing.forEach(el => gameArea.removeChild(el));
+
+  // Pick new current word
+  currentWordObj = words[Math.floor(Math.random() * words.length)];
+  currentWordEl.innerText = "इस शब्द का अर्थ चुनें: " + currentWordObj.word;
+
+  // Prepare options (1 correct + 2 distractors)
+  const options = [currentWordObj.meaning];
+  while (options.length < 3) {
+    const randOption = words[Math.floor(Math.random() * words.length)].meaning;
+    if (!options.includes(randOption)) options.push(randOption);
+  }
+  options.sort(() => Math.random() - 0.5);
+
+  const lanes = [50, 120, 190];
+  options.forEach((opt, index) => {
+    const block = document.createElement("div");
+    block.classList.add("wordBlock");
+    block.innerText = opt;
+    block.style.top = lanes[index] + "px";
+    gameArea.appendChild(block);
+
+    let rightPos = -200;
+    const move = setInterval(() => {
+      rightPos += 4;
+      block.style.right = rightPos + "px";
+      if (rightPos > window.innerWidth) {
+        clearInterval(move);
+        if (gameArea.contains(block)) gameArea.removeChild(block);
+      }
+    }, 20);
+
+    block.onclick = () => {
+      clearInterval(move);
+      if (opt === currentWordObj.meaning) {
+        score += 10;
+        messageEl.innerText = "✅ सही!";
+      } else {
+        score -= 5;
+        messageEl.innerText = "❌ गलत!";
+      }
+      scoreEl.innerText = "Score: " + score;
+      const blocks = document.querySelectorAll(".wordBlock");
+      blocks.forEach(b => {
+        if (gameArea.contains(b)) gameArea.removeChild(b);
+      });
+    };
+  });
+}
+</script>
+{% endblock %}

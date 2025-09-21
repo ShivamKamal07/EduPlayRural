@@ -1,0 +1,221 @@
+{% extends 'shared/base.html' %}
+{% block title %}Quiz {{ quiz_no }} - {{ subject_name }}{% endblock %}
+
+{% block content %}
+<div class="content-header">
+  <div class="container-fluid">
+    <div class="row mb-2">
+      <div class="col-sm-6">
+        <h1 class="m-0"><i class="fas fa-question-circle"></i> {{ subject_name }} - Quiz {{ quiz_no }}</h1>
+      </div>
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-right">
+          <li class="breadcrumb-item"><a href="{% url 'quizzes_subjects' %}">Quizzes</a></li>
+          <li class="breadcrumb-item"><a href="{% url 'quiz_list' subject_name %}">{{ subject_name }}</a></li>
+          <li class="breadcrumb-item active">Quiz {{ quiz_no }}</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section class="content">
+  <div class="container-fluid">
+
+    <!-- Quiz Card -->
+    <div class="card card-outline card-primary shadow-sm">
+      <div class="card-header">
+        <h3 class="card-title"><i class="fas fa-list"></i> English Quiz - Set 3</h3>
+      </div>
+      <div class="card-body">
+
+        <!-- Timer -->
+        <div class="mb-3">
+          <button class="btn btn-primary" id="startBtn">Start Quiz</button>
+          <button class="btn btn-danger" id="stopBtn" disabled>Stop Timer</button>
+          <span class="ml-3 font-weight-bold">Time: <span id="timer">05:00</span></span>
+        </div>
+
+        <!-- Progress -->
+        <div class="mb-4">
+          <label>Progress:</label>
+          <div class="progress">
+            <div class="progress-bar bg-info" role="progressbar" style="width: 0%" id="progressBar">0%</div>
+          </div>
+        </div>
+
+        <!-- Quiz Box -->
+        <div id="quiz-box">
+          <p id="question">Click Start to begin the quiz!</p>
+          <div id="options" class="list-group mb-3"></div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="d-flex justify-content-between mb-3">
+          <button class="btn btn-secondary" id="prevBtn" disabled>Previous</button>
+          <button class="btn btn-secondary" id="nextBtn" disabled>Next</button>
+        </div>
+
+        <!-- Submit -->
+        <div class="text-center">
+          <button class="btn btn-success" id="submitBtn" disabled>Submit Quiz</button>
+          <p id="finalResult" class="mt-3 font-weight-bold"></p>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<script>
+const quizData = [
+  {
+    question: "Choose the correct homonym for 'Bark'.",
+    options: ["Tree's skin", "Dog's sound", "Both A & B", "None"],
+    answer: "Both A & B"
+  },
+  {
+    question: "Fill in the blank: She has been working here ____ five years.",
+    options: ["since", "for", "from", "by"],
+    answer: "for"
+  },
+  {
+    question: "Identify the noun in the sentence: The sun rises in the east.",
+    options: ["sun", "rises", "in", "east"],
+    answer: "sun"
+  },
+  {
+    question: "Pick the correct past tense of 'Go'.",
+    options: ["Goed", "Went", "Gone", "Going"],
+    answer: "Went"
+  },
+  {
+    question: "Choose the correct article: I saw ____ eagle in the sky.",
+    options: ["a", "an", "the", "no article"],
+    answer: "an"
+  }
+];
+
+let currentQuestion = 0;
+let selectedAnswers = [];
+let timer;
+let time = 300; // 5 minutes
+
+const questionEl = document.getElementById("question");
+const optionsEl = document.getElementById("options");
+const prevBtn = document.getElementById("prevBtn");
+const nextBtn = document.getElementById("nextBtn");
+const submitBtn = document.getElementById("submitBtn");
+const startBtn = document.getElementById("startBtn");
+const stopBtn = document.getElementById("stopBtn");
+const timerEl = document.getElementById("timer");
+const progressBar = document.getElementById("progressBar");
+const finalResult = document.getElementById("finalResult");
+
+// Timer functions
+function startTimer() {
+  timer = setInterval(() => {
+    let minutes = Math.floor(time / 60);
+    let seconds = time % 60;
+    timerEl.textContent = `${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
+    time--;
+    if(time < 0){
+      clearInterval(timer);
+      submitQuiz();
+    }
+  }, 1000);
+}
+
+function stopTimer(){
+  clearInterval(timer);
+}
+
+// Load question
+function loadQuestion() {
+  const q = quizData[currentQuestion];
+  questionEl.textContent = `Q${currentQuestion + 1}: ${q.question}`;
+  optionsEl.innerHTML = "";
+  q.options.forEach(option => {
+    const button = document.createElement("button");
+    button.classList.add("list-group-item", "list-group-item-action");
+    button.textContent = option;
+    button.onclick = () => selectAnswer(option);
+    if(selectedAnswers[currentQuestion] === option){
+      button.classList.add("active");
+    }
+    optionsEl.appendChild(button);
+  });
+
+  prevBtn.disabled = currentQuestion === 0;
+  nextBtn.disabled = currentQuestion === quizData.length - 1;
+  submitBtn.disabled = selectedAnswers.length !== quizData.length;
+  updateProgress();
+}
+
+// Select answer
+function selectAnswer(option){
+  selectedAnswers[currentQuestion] = option;
+  loadQuestion();
+}
+
+// Navigation
+prevBtn.addEventListener("click", () => {
+  if(currentQuestion > 0){
+    currentQuestion--;
+    loadQuestion();
+  }
+});
+
+nextBtn.addEventListener("click", () => {
+  if(currentQuestion < quizData.length - 1){
+    currentQuestion++;
+    loadQuestion();
+  }
+});
+
+// Start/Stop Quiz
+startBtn.addEventListener("click", () => {
+  loadQuestion();
+  startBtn.disabled = true;
+  stopBtn.disabled = false;
+  nextBtn.disabled = false;
+  startTimer();
+});
+
+stopBtn.addEventListener("click", () => {
+  stopTimer();
+  stopBtn.disabled = true;
+  startBtn.disabled = false;
+});
+
+// Progress
+function updateProgress(){
+  let answered = selectedAnswers.filter(a => a !== undefined).length;
+  let progress = Math.round((answered / quizData.length) * 100);
+  progressBar.style.width = progress + "%";
+  progressBar.innerText = progress + "%";
+}
+
+// Submit Quiz
+submitBtn.addEventListener("click", submitQuiz);
+
+function submitQuiz(){
+  stopTimer();
+  let score = 0;
+  quizData.forEach((q, idx) => {
+    if(selectedAnswers[idx] === q.answer){
+      score++;
+    }
+  });
+  questionEl.textContent = "Quiz Completed!";
+  optionsEl.innerHTML = "";
+  prevBtn.disabled = true;
+  nextBtn.disabled = true;
+  submitBtn.disabled = true;
+  startBtn.disabled = false;
+  stopBtn.disabled = true;
+  finalResult.textContent = `You answered ${score} out of ${quizData.length} correctly!`;
+}
+</script>
+{% endblock %}

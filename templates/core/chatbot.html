@@ -1,0 +1,267 @@
+{% extends 'shared/base.html' %}
+{% block title %}Chatbot{% endblock %}
+
+{% block content %}
+<style>
+  /* ---------- Card and Layout ---------- */
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+  }
+
+  /* ---------- Chat Window ---------- */
+  #chatWindow {
+    height: 480px;
+    overflow-y: auto;
+    background: linear-gradient(180deg, #f7f9fc 0%, #e9f0f7 100%);
+    padding: 1rem;
+    border-radius: 12px;
+    scroll-behavior: smooth;
+  }
+
+  /* ---------- Chat Bubbles ---------- */
+  .msg { 
+    max-width: 75%; 
+    padding: .8rem 1rem; 
+    border-radius: 16px; 
+    animation: fadeIn 0.4s ease forwards; 
+    position: relative;
+  }
+
+  .msg-user { 
+    background: #d0e6ff; 
+    margin-left: auto; 
+    border-top-right-radius: 4px;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+    transform: translateX(50px);
+    animation: slideInRight 0.4s forwards;
+  }
+
+  .msg-bot { 
+    background: #ffffff; 
+    border:1px solid #e6e6e6; 
+    border-top-left-radius: 4px;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.05);
+    transform: translateX(-50px);
+    animation: slideInLeft 0.4s forwards;
+  }
+
+  .stamp { 
+    font-size:.72rem; 
+    color:#888; 
+    margin-top:.25rem; 
+    text-align: right;
+  }
+
+  /* ---------- Quick Reply Buttons ---------- */
+  #quickReplies button {
+    transition: all 0.3s ease;
+  }
+  #quickReplies button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  }
+
+  /* ---------- Input Field ---------- */
+  #chatInput {
+    transition: all 0.2s ease;
+  }
+  #chatInput:focus {
+    box-shadow: 0 0 6px #007bff;
+  }
+
+  /* ---------- Typing Animation ---------- */
+  .fa-bounce {
+    animation: bounce 1s infinite alternate;
+  }
+
+  /* ---------- Keyframes ---------- */
+  @keyframes bounce {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-5px); }
+  }
+  @keyframes fadeIn { to { opacity: 1; } }
+  @keyframes slideInRight { to { transform: translateX(0); } }
+  @keyframes slideInLeft { to { transform: translateX(0); } }
+</style>
+
+<div class="content-header">
+  <div class="container-fluid">
+    <div class="row mb-2">
+      <div class="col-sm-6">
+        <h1 class="m-0"><i class="fas fa-robot text-primary"></i> Chatbot</h1>
+      </div>
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-right">
+          <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+          <li class="breadcrumb-item active">Chatbot</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section class="content">
+  <div class="container-fluid">
+    <div class="card card-outline card-primary shadow-sm">
+      <div class="card-header">
+        <h3 class="card-title"><i class="fas fa-comments text-success"></i> Ask me anything about your learning</h3>
+      </div>
+
+      <div class="card-body p-0">
+
+        <!-- Chat window -->
+        <div id="chatWindow"></div>
+
+        <!-- Quick replies -->
+        <div class="px-3 pb-2">
+          <div id="quickReplies" class="d-flex flex-wrap gap-2">
+            <button class="btn btn-sm btn-outline-primary m-1" onclick="sendQuick('Show subjects')">Subjects</button>
+            <button class="btn btn-sm btn-outline-info m-1" onclick="sendQuick('Show quizzes')">Quizzes</button>
+            <button class="btn btn-sm btn-outline-success m-1" onclick="sendQuick('Show progress')">Progress</button>
+            <button class="btn btn-sm btn-outline-warning m-1" onclick="sendQuick('Open notes')">Notebook</button>
+            <button class="btn btn-sm btn-outline-secondary m-1" onclick="sendQuick('Leaderboard')">Leaderboard</button>
+            <button class="btn btn-sm btn-outline-dark m-1" onclick="sendQuick('Help')">Help</button>
+          </div>
+        </div>
+
+        <!-- Input bar -->
+        <div class="p-3 border-top bg-white">
+          <form onsubmit="handleSend(event)" class="d-flex align-items-center">
+            <input id="chatInput" class="form-control me-2" placeholder="Type your message (use /clear to reset)" autocomplete="off">
+            <button class="btn btn-primary"><i class="fas fa-paper-plane"></i> Send</button>
+          </form>
+          <small id="typing" class="text-muted d-none"><i class="fas fa-ellipsis-h fa-bounce"></i> Bot is typing...</small>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+/* ---------- Offline Rule-Based Chatbot ---------- */
+const studentName = {{ student_name|default:"'Student'"|safe }};
+const storeKey = "chat_history_v1";
+
+const routes = {
+  subjects: "{% url 'subjects' %}",
+  quizzes:  "{% url 'quizzes_subjects' %}",
+  progress: "{% url 'progress' %}" || "/progress/",
+  notebook: "/notebook/" || "#",
+  leaderboard: "{% url 'leaderboard' %}" || "/leaderboard/"
+};
+
+const chatWindow = document.getElementById("chatWindow");
+const input = document.getElementById("chatInput");
+const typing = document.getElementById("typing");
+
+function nowStamp(){
+  const d = new Date();
+  return d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+}
+
+function appendMsg(who, html){
+  const wrap = document.createElement("div");
+  wrap.className = "d-flex flex-column my-2 " + (who === "user" ? "align-items-end" : "align-items-start");
+
+  const bubble = document.createElement("div");
+  bubble.className = "msg " + (who === "user" ? "msg-user" : "msg-bot");
+  bubble.innerHTML = html;
+
+  const stamp = document.createElement("div");
+  stamp.className = "stamp";
+  stamp.textContent = nowStamp();
+
+  wrap.appendChild(bubble);
+  wrap.appendChild(stamp);
+  chatWindow.appendChild(wrap);
+  chatWindow.scrollTop = chatWindow.scrollHeight;
+
+  saveHistory();
+}
+
+function saveHistory(){
+  localStorage.setItem(storeKey, chatWindow.innerHTML);
+}
+function loadHistory(){
+  const h = localStorage.getItem(storeKey);
+  if (h) chatWindow.innerHTML = h;
+}
+
+function sendQuick(text){
+  input.value = text;
+  input.focus();
+  handleSend({preventDefault:()=>{}});
+}
+
+function handleSend(e){
+  e.preventDefault();
+  const text = (input.value || "").trim();
+  if (!text) return;
+
+  if (text.toLowerCase() === "/clear"){
+    localStorage.removeItem(storeKey);
+    chatWindow.innerHTML = "";
+    input.value = "";
+    botHello(true);
+    return;
+  }
+
+  appendMsg("user", escapeHTML(text));
+  input.value = "";
+  typing.classList.remove("d-none");
+
+  setTimeout(() => {
+    const reply = answer(text);
+    appendMsg("bot", reply);
+    typing.classList.add("d-none");
+  }, 500);
+}
+
+function answer(q){
+  const s = q.toLowerCase();
+
+  if (/(hi|hello|namaste|hey)/.test(s)){
+    return `Hello <b>${escapeHTML(studentName)}</b> 👋<br>Ask me about <i>subjects</i>, <i>quizzes</i>, <i>progress</i>, <i>leaderboard</i> or <i>notes</i>. Type <code>help</code> for tips.`;
+  }
+  if (/help|how|kaise|madad/.test(s)){
+    return `
+      <b>What I can do:</b>
+      <ul class="mb-2">
+        <li>Show available <a href="${routes.subjects}">Subjects</a></li>
+        <li>Open <a href="${routes.quizzes}">Quizzes</a></li>
+        <li>Show <a href="${routes.progress}">Progress</a> or <a href="${routes.leaderboard}">Leaderboard</a></li>
+        <li>Open <a href="${routes.notebook}">Smart Notebook</a></li>
+      </ul>
+      Commands: <code>/clear</code> to reset chat.`;
+  }
+  if (/subject/.test(s)) return `Here you go: <a class="btn btn-xs btn-outline-primary ms-1" href="${routes.subjects}"><i class="fas fa-book-open"></i> Open Subjects</a>`;
+  if (/quiz/.test(s) && !/(math|english|hindi|science)/.test(s)) return `Open quizzes: <a class="btn btn-xs btn-outline-info" href="${routes.quizzes}"><i class="fas fa-question-circle"></i> Quizzes</a>`;
+  if (/math/.test(s) && /quiz/.test(s)) return `Math quizzes: <a href="${routes.quizzes}">open list</a> → choose <b>Math</b>.`;
+  if (/english/.test(s) && /quiz/.test(s)) return `English quizzes: <a href="${routes.quizzes}">open list</a> → choose <b>English</b>.`;
+  if (/hindi/.test(s) && /quiz/.test(s)) return `Hindi quizzes: <a href="${routes.quizzes}">open list</a> → choose <b>Hindi</b>.`;
+  if (/science/.test(s) && /quiz/.test(s)) return `Science quizzes: <a href="${routes.quizzes}">open list</a> → choose <b>Science</b>.`;
+  if (/progress|report|bar/.test(s)) return `Your progress: <a class="btn btn-xs btn-outline-success" href="${routes.progress}"><i class="fas fa-chart-line"></i> View Progress</a>`;
+  if (/leader|rank|top/.test(s)) return `Leaderboard: <a class="btn btn-xs btn-outline-secondary" href="${routes.leaderboard}"><i class="fas fa-trophy"></i> Open Leaderboard</a>`;
+  if (/note|notebook|pad|smart/.test(s)) return `Open Smart Notebook: <a class="btn btn-xs btn-outline-warning" href="${routes.notebook}"><i class="fas fa-pencil-alt"></i> Open Notebook</a>`;
+  return `Sorry, I didn't catch that 😅. Try <b>subjects</b>, <b>quizzes</b>, <b>progress</b>, <b>leaderboard</b>, <b>notes</b> or type <code>help</code>.`;
+}
+
+function escapeHTML(str){
+  return str.replace(/[&<>'"]/g, t => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[t]));
+}
+
+function botHello(first=false){
+  const greet = first
+    ? `Hi <b>${escapeHTML(studentName)}</b>! I’m your study assistant.`
+    : `Welcome back, <b>${escapeHTML(studentName)}</b>!`;
+  appendMsg("bot", `${greet} Ask about <i>subjects</i>, <i>quizzes</i>, <i>progress</i>, <i>leaderboard</i> or <i>notes</i>.`);
+}
+
+/* ---------- Initialize ---------- */
+loadHistory();
+if (!localStorage.getItem(storeKey)) botHello(true);
+</script>
+{% endblock %}

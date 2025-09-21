@@ -1,0 +1,37 @@
+{% extends 'shared/base.html' %}
+{% block title %}Lesson Not Found{% endblock %}
+
+{% block content %}
+<div class="content-header">
+  <div class="container-fluid">
+    <div class="row mb-2">
+      <div class="col-sm-6">
+        <h1 class="m-0 text-danger"><i class="fas fa-exclamation-triangle"></i> Lesson Not Found</h1>
+      </div>
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-right">
+          <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+          <li class="breadcrumb-item"><a href="{% url 'subjects' %}">Subjects</a></li>
+          <li class="breadcrumb-item"><a href="{% url 'lessons' subject_name %}">{{ subject_name }}</a></li>
+          <li class="breadcrumb-item active">Lesson {{ lesson_no }}</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section class="content">
+  <div class="container-fluid">
+    <div class="card card-outline card-danger shadow-sm">
+      <div class="card-body text-center">
+        <i class="fas fa-times-circle fa-4x text-danger mb-3"></i>
+        <h3>Lesson {{ lesson_no }} for {{ subject_name }} is not available yet 🚧</h3>
+        <p class="text-muted">This lesson is under construction. Please check back later!</p>
+        <a href="{% url 'lessons' subject_name %}" class="btn btn-outline-primary mt-3">
+          <i class="fas fa-arrow-left"></i> Back to Lessons
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

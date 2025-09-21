@@ -1,0 +1,54 @@
+{% extends 'shared/base.html' %}
+{% block title %}Lesson {{ lesson_no }} - {{ subject_name }}{% endblock %}
+
+{% block content %}
+<div class="content-header">
+  <div class="container-fluid">
+    <div class="row mb-2">
+      <div class="col-sm-6">
+        <h1 class="m-0"><i class="fas fa-file-alt"></i> {{ subject_name }} - Lesson {{ lesson_no }}</h1>
+      </div>
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-right">
+          <li class="breadcrumb-item"><a href="{% url 'subjects' %}">Subjects</a></li>
+          <li class="breadcrumb-item"><a href="{% url 'lessons' subject_name %}">{{ subject_name }}</a></li>
+          <li class="breadcrumb-item active">Lesson {{ lesson_no }}</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section class="content">
+  <div class="container-fluid">
+
+    <!-- Lesson Card -->
+    <div class="card card-outline card-primary shadow-sm">
+      <div class="card-header">
+        <h3 class="card-title"><i class="fas fa-chalkboard-teacher"></i> Lesson {{ lesson_no }} Content</h3>
+      </div>
+      <div class="card-body">
+        <p class="lead">{{ content }}</p>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="d-flex justify-content-between mt-3">
+      {% if lesson_no > 1 %}
+      <a href="{% url 'lesson_detail' subject_name lesson_no|add:'-1' %}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left"></i> Previous
+      </a>
+      {% else %}
+      <span></span>
+      {% endif %}
+
+      {% if lesson_no < 6 %}
+      <a href="{% url 'lesson_detail' subject_name lesson_no|add:'1' %}" class="btn btn-outline-primary">
+        Next <i class="fas fa-arrow-right"></i>
+      </a>
+      {% endif %}
+    </div>
+
+  </div>
+</section>
+{% endblock %}

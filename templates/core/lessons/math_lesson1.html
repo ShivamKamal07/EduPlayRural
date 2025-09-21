@@ -1,0 +1,195 @@
+{% extends 'shared/base.html' %}
+{% block title %}Math - Number System Game{% endblock %}
+
+{% block content %}
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #a8edea, #fed6e3);
+    margin: 0; padding: 0;
+  }
+
+  .container {
+    max-width: 800px; margin: auto; padding: 30px; text-align: center;
+  }
+
+  .game, .intro {
+    background: white; padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    position: relative;
+    overflow: hidden;
+    animation: fadeIn 1s ease;
+  }
+
+  h1 { color: #374151; margin-bottom: 20px; }
+  .question {
+    font-size: 1.5rem; margin-bottom: 25px; color: #1f2937;
+  }
+
+  .option {
+    display: block; margin: 12px auto;
+    padding: 15px 30px; width: 70%;
+    background: #f3f4f6; border-radius: 15px;
+    cursor: pointer; transition: 0.3s;
+    font-size: 1.1rem;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
+
+  .option:hover { background: #dbeafe; transform: scale(1.05); }
+
+  .btn {
+    margin: 12px; padding: 12px 25px;
+    border: none; border-radius: 10px; cursor: pointer;
+    font-size: 1.1rem; transition: 0.3s;
+  }
+
+  .start-btn { background: #10b981; color: white; }
+  .stop-btn { background: #ef4444; color: white; }
+  .next-btn { background: #3b82f6; color: white; }
+
+  .btn:hover { transform: scale(1.05); }
+
+  .score { font-size: 1.2rem; margin-top: 20px; color: #111827; }
+
+  @keyframes fadeIn { from {opacity:0; transform: translateY(-20px);} to {opacity:1; transform: translateY(0);} }
+
+  .confetti-piece { width: 10px; height: 10px; position: absolute; background: #facc15; top: 0; animation: confetti 2s linear infinite; }
+  @keyframes confetti { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 100% { transform: translateY(500px) rotate(360deg); opacity: 0; } }
+</style>
+
+<div class="container">
+
+  <!-- INTRODUCTION PAGE -->
+  <div class="intro" id="intro">
+    <h1>Welcome to Number System Game!</h1>
+    <p>Test your knowledge of numbers, primes, binary and decimal numbers. <br>
+       Answer correctly to move to the next level!</p>
+    <button class="btn start-btn" onclick="startGame()">Start Game</button>
+  </div>
+
+  <!-- GAME PAGE -->
+  <div class="game" id="game" style="display:none;">
+    <h1>Number System Game</h1>
+    <p class="question" id="question">Loading...</p>
+    <div id="options"></div>
+
+    <div class="score" id="score">Score: 0</div>
+
+    <button class="btn stop-btn" onclick="stopGame()">Stop</button>
+    <button class="btn next-btn" onclick="nextLevel()">Next Level</button>
+  </div>
+
+</div>
+
+<script>
+  const questions = [
+    {
+      q: "Which of these is the smallest prime number?",
+      options: ["1", "2", "3", "5"],
+      answer: "2"
+    },
+    {
+      q: "Which number is even?",
+      options: ["7", "13", "22", "19"],
+      answer: "22"
+    },
+    {
+      q: "What is 101 in decimal?",
+      options: ["5", "4", "7", "6"],
+      answer: "5"
+    },
+    {
+      q: "Which is a binary number?",
+      options: ["102", "1101", "234", "120"],
+      answer: "1101"
+    }
+  ];
+
+  let current = 0;
+  let score = 0;
+  let gameRunning = false;
+
+  const introEl = document.getElementById('intro');
+  const gameEl = document.getElementById('game');
+  const questionEl = document.getElementById('question');
+  const optionsEl = document.getElementById('options');
+  const scoreEl = document.getElementById('score');
+
+  function startGame() {
+    introEl.style.display = 'none';
+    gameEl.style.display = 'block';
+    gameRunning = true;
+    current = 0;
+    score = 0;
+    scoreEl.innerText = `Score: ${score}`;
+    showQuestion();
+  }
+
+  function showQuestion() {
+    if(!gameRunning) return;
+    if(current >= questions.length) {
+      questionEl.innerText = "🎉 Level Completed!";
+      optionsEl.innerHTML = `<p>Your score: ${score}/${questions.length}</p>`;
+      createConfetti();
+      return;
+    }
+    const q = questions[current];
+    questionEl.innerText = q.q;
+    optionsEl.innerHTML = '';
+    q.options.forEach(opt => {
+      const btn = document.createElement('div');
+      btn.classList.add('option');
+      btn.innerText = opt;
+      btn.onclick = () => checkAnswer(opt);
+      optionsEl.appendChild(btn);
+    });
+  }
+
+  function checkAnswer(selected) {
+    if(!gameRunning) return;
+    const correct = questions[current].answer;
+    const optionsButtons = document.querySelectorAll('.option');
+    optionsButtons.forEach(btn => {
+      btn.style.pointerEvents = 'none';
+      if(btn.innerText === correct) btn.style.background = '#bbf7d0';
+      if(btn.innerText === selected && selected !== correct) btn.style.background = '#fecaca';
+    });
+
+    if(selected === correct) {
+      score++;
+      scoreEl.innerText = `Score: ${score}`;
+    }
+
+    setTimeout(() => {
+      current++;
+      showQuestion();
+    }, 1000);
+  }
+
+  function stopGame() {
+    gameRunning = false;
+    questionEl.innerText = "⏹ Game Stopped!";
+    optionsEl.innerHTML = `<p>Your score: ${score}/${questions.length}</p>`;
+  }
+
+  function nextLevel() {
+    if(!gameRunning) return;
+    alert("✅ Next Level Coming Soon!");
+  }
+
+  function createConfetti() {
+    for(let i=0;i<100;i++){
+      const piece = document.createElement('div');
+      piece.className = 'confetti-piece';
+      piece.style.left = Math.random()*100 + '%';
+      piece.style.background = `hsl(${Math.random()*360}, 100%, 50%)`;
+      gameEl.appendChild(piece);
+    }
+  }
+</script>
+
+{% endblock %}

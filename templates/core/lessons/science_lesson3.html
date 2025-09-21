@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+{% block title %}Chemistry Lesson 3{% endblock %}
+{% block content %}
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #f4f7f8;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+}
+h1 {
+    color: #2c3e50;
+}
+.game-container {
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0px 5px 15px rgba(0,0,0,0.1);
+    max-width: 500px;
+    width: 100%;
+    text-align: center;
+}
+button {
+    margin: 5px;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    background-color: #3498db;
+    color: white;
+    transition: 0.3s;
+}
+button:hover {
+    background-color: #2980b9;
+}
+.options button {
+    display: block;
+    width: 80%;
+    margin: 10px auto;
+    background-color: #1abc9c;
+}
+.options button:hover {
+    background-color: #16a085;
+}
+#message {
+    font-size: 18px;
+    margin: 10px 0;
+    color: #e74c3c;
+}
+</style>
+
+<div class="game-container">
+    <h1>Organic Chemistry Quiz</h1>
+    <div id="level-info">Level 1</div>
+    <div id="question">Press Start to begin!</div>
+    <div class="options" id="options"></div>
+    <div id="message"></div>
+    <div>
+        <button id="startBtn">Start</button>
+        <button id="stopBtn">Stop</button>
+        <button id="nextBtn">Next Level</button>
+        <button id="backBtn">Back</button>
+    </div>
+</div>
+
+<script>
+const quizData = [
+    // Level 1
+    [
+        { question: "CH4 is called?", options: ["Methane", "Ethane", "Propane", "Butane"], answer: "Methane" },
+        { question: "C2H6 is called?", options: ["Ethane", "Methane", "Propane", "Butane"], answer: "Ethane" }
+    ],
+    // Level 2
+    [
+        { question: "CH3CH2OH is called?", options: ["Ethanol", "Methanol", "Propanol", "Butanol"], answer: "Ethanol" },
+        { question: "CH3COOH is?", options: ["Acetic acid", "Formic acid", "Propanoic acid", "Butanoic acid"], answer: "Acetic acid" }
+    ],
+];
+
+let currentLevel = 0;
+let currentQuestion = 0;
+let score = 0;
+let gameStarted = false;
+
+const questionEl = document.getElementById("question");
+const optionsEl = document.getElementById("options");
+const messageEl = document.getElementById("message");
+const levelInfoEl = document.getElementById("level-info");
+
+document.getElementById("startBtn").addEventListener("click", startGame);
+document.getElementById("stopBtn").addEventListener("click", stopGame);
+document.getElementById("nextBtn").addEventListener("click", nextLevel);
+document.getElementById("backBtn").addEventListener("click", previousLevel);
+
+function startGame() {
+    gameStarted = true;
+    currentQuestion = 0;
+    score = 0;
+    showQuestion();
+    messageEl.textContent = "";
+}
+
+function stopGame() {
+    gameStarted = false;
+    questionEl.textContent = "Game stopped. Press Start to play again.";
+    optionsEl.innerHTML = "";
+    messageEl.textContent = `Your score: ${score}`;
+}
+
+function showQuestion() {
+    if (!gameStarted) return;
+
+    const questionData = quizData[currentLevel][currentQuestion];
+    questionEl.textContent = questionData.question;
+    optionsEl.innerHTML = "";
+    questionData.options.forEach(option => {
+        const btn = document.createElement("button");
+        btn.textContent = option;
+        btn.addEventListener("click", () => checkAnswer(option));
+        optionsEl.appendChild(btn);
+    });
+    levelInfoEl.textContent = "Level " + (currentLevel + 1);
+}
+
+function checkAnswer(selected) {
+    const questionData = quizData[currentLevel][currentQuestion];
+    if (selected === questionData.answer) {
+        messageEl.textContent = "✅ Correct!";
+        score++;
+    } else {
+        messageEl.textContent = "❌ Wrong! Correct answer: " + questionData.answer;
+    }
+    currentQuestion++;
+    if (currentQuestion < quizData[currentLevel].length) {
+        setTimeout(showQuestion, 1000);
+    } else {
+        messageEl.textContent += ` 🎉 Level completed! Score: ${score}`;
+        optionsEl.innerHTML = "";
+    }
+}
+
+function nextLevel() {
+    if (currentLevel < quizData.length - 1) {
+        currentLevel++;
+        startGame();
+    } else {
+        messageEl.textContent = "🚀 No more levels!";
+    }
+}
+
+function previousLevel() {
+    if (currentLevel > 0) {
+        currentLevel--;
+        startGame();
+    } else {
+        messageEl.textContent = "⚠️ Already at first level!";
+    }
+}
+</script>
+{% endblock %}

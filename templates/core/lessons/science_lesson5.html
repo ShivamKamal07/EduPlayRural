@@ -1,0 +1,142 @@
+{% extends "shared/base.html" %}
+{% block title %}Chemistry Lesson 5 — Periodic Table{% endblock %}
+{% block content %}
+<style>
+body {
+    font-family: Poppins, Arial, sans-serif;
+    background: #0f1724;
+    color: #e6eef6;
+    margin: 0;
+    padding: 20px;
+    text-align: center;
+}
+canvas {
+    background: linear-gradient(180deg,#07111a,#081420);
+    border-radius: 12px;
+    margin-top: 20px;
+}
+button {
+    padding: 10px 16px;
+    margin: 4px;
+    border: none;
+    border-radius: 8px;
+    background: #06b6d4;
+    color: #012;
+    font-weight: 600;
+    cursor: pointer;
+}
+#palette {
+    margin-top: 12px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+.molecule {
+    background: rgba(255,255,255,0.08);
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: grab;
+}
+#message {
+    margin-top: 10px;
+    font-weight: bold;
+    min-height: 24px;
+}
+</style>
+
+<h1>Lesson 5: Periodic Table Game</h1>
+<div>
+    <button id="startBtn">Start</button>
+    <button id="stopBtn">Stop</button>
+</div>
+<canvas id="gameCanvas" width="700" height="400"></canvas>
+<div id="palette"></div>
+<div style="margin-top:12px; font-weight:700;">Score: <span id="score">0</span></div>
+<div id="message"></div>
+
+<script>
+const canvas=document.getElementById('gameCanvas');
+const ctx=canvas.getContext('2d');
+let score=0;
+let targets=[];
+
+function initPeriodic(){
+  // Define target boxes for element groups
+  targets=[
+    {x:50,y:80,w:180,h:100,name:'Alkali'},
+    {x:260,y:80,w:180,h:100,name:'Halogen'},
+    {x:470,y:80,w:180,h:100,name:'Transition'},
+    {x:50,y:200,w:180,h:100,name:'Chalcogen'}
+  ];
+  // Palette elements
+  const pal=document.getElementById('palette'); pal.innerHTML='';
+  const elements=[
+    {sym:'Na',group:'Alkali'},
+    {sym:'Cl',group:'Halogen'},
+    {sym:'O', group:'Chalcogen'},
+    {sym:'Fe',group:'Transition'}
+  ];
+  elements.forEach(el=>{
+    const d=document.createElement('div');
+    d.className='molecule';
+    d.draggable=true;
+    d.textContent=el.sym;
+    d.dataset.group=el.group;
+    d.addEventListener('dragstart', e=>{ e.dataTransfer.setData('text',el.sym); });
+    pal.appendChild(d);
+  });
+  draw();
+  document.getElementById('message').textContent="Drag the element into its correct group!";
+}
+
+canvas.ondragover=e=>e.preventDefault();
+canvas.ondrop=function(e){
+  e.preventDefault();
+  const sym=e.dataTransfer.getData('text');
+  const rect=canvas.getBoundingClientRect();
+  const x=e.clientX-rect.left, y=e.clientY-rect.top;
+  let mapping={Na:'Alkali',K:'Alkali',Cl:'Halogen',F:'Halogen',O:'Chalcogen',S:'Chalcogen',Fe:'Transition'};
+  targets.forEach(t=>{
+    if(x>t.x && x<t.x+t.w && y>t.y && y<t.y+t.h){
+      if(mapping[sym]===t.name){
+        score+=10;
+        document.getElementById('message').textContent=`✅ Correct! ${sym} belongs to ${t.name}`;
+      } else {
+        score=Math.max(0,score-3);
+        document.getElementById('message').textContent=`❌ Wrong! ${sym} doesn’t belong to ${t.name}`;
+      }
+      document.getElementById('score').textContent=score;
+    }
+  });
+};
+
+function draw(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.font='16px Poppins';
+  ctx.fillStyle='#bfefff';
+  ctx.fillText('Drag elements from the palette into the correct group',20,24);
+  targets.forEach(t=>{
+    ctx.beginPath();
+    ctx.rect(t.x,t.y,t.w,t.h);
+    ctx.strokeStyle='rgba(255,255,255,0.3)';
+    ctx.stroke();
+    ctx.fillStyle='rgba(255,255,255,0.05)';
+    ctx.fillRect(t.x,t.y,t.w,t.h);
+    ctx.fillStyle='#D7F8FF';
+    ctx.fillText(t.name, t.x+12, t.y+28);
+  });
+}
+
+document.getElementById('startBtn').addEventListener('click', ()=>{
+  score=0;
+  document.getElementById('score').textContent=0;
+  initPeriodic();
+});
+document.getElementById('stopBtn').addEventListener('click', ()=>{
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  document.getElementById('palette').innerHTML='';
+  document.getElementById('message').textContent="Game stopped. Press Start to play again.";
+});
+</script>
+{% endblock %}

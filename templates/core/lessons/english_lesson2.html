@@ -1,0 +1,169 @@
+{% extends 'shared/base.html' %}
+{% block title %}English Word Builder Game{% endblock %}
+
+{% block content %}
+
+<style>
+  body {
+    margin: 0; padding: 0;
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(to bottom, #ffecd2, #fcb69f);
+    overflow: hidden;
+  }
+
+  .container {
+    width: 100%; height: 100vh; position: relative;
+  }
+
+  .intro, .game, .game-over {
+    position: absolute; width: 100%; height: 100%;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    background: rgba(255,255,255,0.9);
+    z-index: 10; transition: 0.5s ease;
+  }
+
+  h1 { font-size: 2.5rem; color: #111827; margin-bottom: 20px; text-align: center; }
+  p { font-size: 1.2rem; margin-bottom: 25px; text-align: center; }
+
+  .btn {
+    padding: 15px 30px; font-size: 1.2rem;
+    margin: 10px; border: none; border-radius: 12px;
+    cursor: pointer; background: #3b82f6; color: white;
+    transition: 0.3s;
+  }
+  .btn:hover { transform: scale(1.05); }
+
+  .letter {
+    position: absolute; font-size: 2rem; font-weight: bold;
+    color: #ef4444; user-select: none; cursor: grab;
+    transition: transform 0.2s;
+  }
+
+  .letter:active { cursor: grabbing; transform: scale(1.2); }
+
+  #word-box {
+    position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%);
+    width: 400px; min-height: 80px;
+    border: 3px dashed #3b82f6; border-radius: 20px;
+    display: flex; justify-content: center; align-items: center;
+    gap: 10px; padding: 10px; font-size: 2rem;
+    background: rgba(255,255,255,0.6);
+  }
+
+  .score-board {
+    position: absolute; top: 20px; right: 20px; font-size: 1.5rem; font-weight: bold; color: #111827;
+  }
+</style>
+
+<div class="container">
+
+  <!-- INTRO -->
+  <div class="intro" id="intro">
+    <h1>Word Builder Game</h1>
+    <p>Drag and drop letters to form the correct word.<br>Use the box below to complete words!</p>
+    <button class="btn" onclick="startGame()">Start Game</button>
+  </div>
+
+  <!-- GAME -->
+  <div class="game" id="game" style="display:none;">
+    <div class="score-board" id="score">Score: 0</div>
+    <div id="word-box">Drop letters here</div>
+  </div>
+
+  <!-- GAME OVER -->
+  <div class="game-over" id="gameOver" style="display:none;">
+    <h1>Game Over!</h1>
+    <p id="finalScore"></p>
+    <button class="btn" onclick="restartGame()">Restart</button>
+    <button class="btn" onclick="backToIntro()">Back</button>
+  </div>
+
+</div>
+
+<script>
+  const gameEl = document.getElementById('game');
+  const introEl = document.getElementById('intro');
+  const gameOverEl = document.getElementById('gameOver');
+  const finalScoreEl = document.getElementById('finalScore');
+  const scoreEl = document.getElementById('score');
+  const wordBox = document.getElementById('word-box');
+
+  const words = ["APPLE", "HOUSE", "TRAIN", "PLANE"];
+  let currentWordIndex = 0;
+  let letters = [];
+  let score = 0;
+  let gameRunning = false;
+
+  function startGame() {
+    introEl.style.display = 'none';
+    gameOverEl.style.display = 'none';
+    gameEl.style.display = 'block';
+    score = 0;
+    scoreEl.innerText = 'Score: ' + score;
+    currentWordIndex = 0;
+    spawnWordLetters();
+    gameRunning = true;
+  }
+
+  function restartGame() { startGame(); }
+  function backToIntro() { gameEl.style.display='none'; gameOverEl.style.display='none'; introEl.style.display='flex'; }
+
+  function spawnWordLetters() {
+    clearLetters();
+    const word = words[currentWordIndex];
+    const shuffled = word.split('').sort(() => Math.random()-0.5);
+
+    shuffled.forEach((char, i) => {
+      const letterEl = document.createElement('div');
+      letterEl.classList.add('letter');
+      letterEl.innerText = char;
+      letterEl.style.top = Math.random()*300 + 'px';
+      letterEl.style.left = Math.random()* (window.innerWidth-50) + 'px';
+      letterEl.draggable = true;
+      gameEl.appendChild(letterEl);
+      letters.push(letterEl);
+
+      // Drag events
+      letterEl.addEventListener('dragstart', (e)=>{ e.dataTransfer.setData('text', char); });
+    });
+  }
+
+  wordBox.addEventListener('dragover', (e) => { e.preventDefault(); });
+  wordBox.addEventListener('drop', (e) => {
+    if(!gameRunning) return;
+    const char = e.dataTransfer.getData('text');
+    wordBox.innerText += char;
+
+    const currentWord = words[currentWordIndex];
+    if(wordBox.innerText === currentWord) {
+      score += 10;
+      scoreEl.innerText = 'Score: ' + score;
+      nextLevel();
+    }
+  });
+
+  function nextLevel() {
+    wordBox.innerText = '';
+    currentWordIndex++;
+    if(currentWordIndex >= words.length) {
+      endGame();
+      return;
+    }
+    spawnWordLetters();
+  }
+
+  function clearLetters() {
+    letters.forEach(l => l.remove());
+    letters = [];
+  }
+
+  function endGame() {
+    gameRunning = false;
+    clearLetters();
+    gameEl.style.display = 'none';
+    gameOverEl.style.display = 'flex';
+    finalScoreEl.innerText = 'Your Score: ' + score;
+  }
+</script>
+
+{% endblock %}

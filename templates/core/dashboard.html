@@ -1,0 +1,129 @@
+{% extends 'shared/base.html' %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="content-header">
+  <div class="container-fluid">
+    <div class="row mb-2">
+      <div class="col-sm-6">
+        <h1 class="m-0">Welcome, {{ profile.student_name }} 🎮</h1>
+      </div>
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-right">
+          <li class="breadcrumb-item"><a href="/">Home</a></li>
+          <li class="breadcrumb-item active">Dashboard</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section class="content">
+  <div class="container-fluid">
+
+    <!-- Info Cards -->
+    <div class="row">
+      <div class="col-lg-3 col-6">
+        <div class="small-box bg-info hover-card">
+          <div class="inner">
+            <h3>{{ profile.student_class }}</h3>
+            <p>Class</p>
+          </div>
+          <div class="icon"><i class="fas fa-school"></i></div>
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-6">
+        <div class="small-box bg-success hover-card">
+          <div class="inner">
+            <h3>{{ profile.board|upper }}</h3>
+            <p>Board</p>
+          </div>
+          <div class="icon"><i class="fas fa-graduation-cap"></i></div>
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-6">
+        <div class="small-box bg-warning hover-card">
+          <div class="inner">
+            <h3>{{ profile.get_language_display }}</h3>
+            <p>Language</p>
+          </div>
+          <div class="icon"><i class="fas fa-language"></i></div>
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-6">
+        <div class="small-box bg-danger hover-card">
+          <div class="inner">
+            <h3>{{ profile.subjects.count|default:4 }}</h3>
+            <p>Subjects Chosen</p>
+          </div>
+          <div class="icon"><i class="fas fa-book"></i></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Subjects Card -->
+    <div class="card card-primary card-outline hover-card">
+      <div class="card-header">
+        <h3 class="card-title"><i class="fas fa-book-reader"></i> Your Subjects</h3>
+      </div>
+      <div class="card-body">
+        {% if profile.subjects.exists %}
+        <div class="row">
+          {% for subj in profile.subjects.all %}
+          <div class="col-md-3 col-sm-6">
+            <div class="info-box bg-light hover-card">
+              <span class="info-box-icon bg-primary"><i class="fas fa-book"></i></span>
+              <div class="info-box-content">
+                <span class="info-box-text">{{ subj.name }}</span>
+                <span class="info-box-number">Progress: 0%</span>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="row">
+          {% for subj in default_subjects %}
+          <div class="col-md-3 col-sm-6">
+            <div class="info-box bg-light hover-card">
+              <span class="info-box-icon bg-secondary"><i class="fas fa-book-open"></i></span>
+              <div class="info-box-content">
+                <span class="info-box-text">{{ subj }}</span>
+                <span class="info-box-number">Progress: 0%</span>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Profile Info -->
+    <div class="card card-info card-outline mt-3 hover-card">
+      <div class="card-header">
+        <h3 class="card-title"><i class="fas fa-user"></i> Profile Info</h3>
+      </div>
+      <div class="card-body">
+        <p><b>Roll Number:</b> {{ profile.roll_number }}</p>
+        <p><b>Father's Name:</b> {{ profile.father_name }}</p>
+        <p><b>Mobile:</b> {{ profile.mobile_number }}</p>
+        <p><b>Address:</b> {{ profile.address }} ({{ profile.pincode }})</p>
+        <p><b>School:</b> {{ profile.school_name }}</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<style>
+  /* Hover background effect for cards */
+  .hover-card:hover {
+    background-color: #f0f8ff !important; /* light blue shade */
+    transition: background-color 0.3s ease-in-out;
+  }
+</style>
+{% endblock %}

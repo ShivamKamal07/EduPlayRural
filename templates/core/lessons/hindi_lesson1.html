@@ -1,0 +1,247 @@
+{% extends 'shared/base.html' %}
+{% block title %}Story Builder Game{% endblock %}
+
+{% block content %}
+
+<h1>📝 Drag & Drop Story Builder</h1>
+
+<div class="intro" id="intro">
+  <h2>परिचय</h2>
+  <p>इस खेल में आपकी चुनौती है:</p>
+  <ul style="text-align:left;">
+    <li>दी गई sentences को सही क्रम में story में drag करें।</li>
+    <li>सही क्रम पर +10 अंक, गलत क्रम पर -5 अंक।</li>
+    <li>Story complete होने पर आपका final score दिखेगा।</li>
+  </ul>
+  <button onclick="startGame()">खेल शुरू करें</button>
+</div>
+
+<div id="gameArea">
+  <div id="sentencePool"></div>
+  <div id="storyArea"></div>
+
+  <div class="controls">
+    <button onclick="stopGame()">Stop</button>
+    <button onclick="backToIntro()">Back</button>
+    <button onclick="nextLevel()">Next Level</button>
+  </div>
+</div>
+
+<div id="score">Score: 0</div>
+<div id="message"></div>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  text-align:center;
+}
+h1 {
+  background-color:#f57f17;
+  color:white;
+  margin:0;
+  padding:20px;
+  font-size:32px;
+}
+.intro {
+  background: linear-gradient(135deg,#fff3e0,#ffe0b2);
+  color:#e65100;
+  width:80%;
+  max-width:700px;
+  margin:20px auto;
+  padding:25px;
+  border-radius:18px;
+  box-shadow:0 8px 20px rgba(0,0,0,0.3);
+}
+.intro h2 { color:#bf360c; }
+.intro button {
+  padding:12px 30px;
+  font-size:18px;
+  background:#bf360c;
+  color:white;
+  border:none;
+  border-radius:12px;
+  cursor:pointer;
+  margin-top:20px;
+  transition:0.3s;
+}
+.intro button:hover { background:#e64a19; }
+
+#gameArea { display:none; margin-top:20px; }
+#sentencePool, #storyArea {
+  min-height:150px;
+  width:80%;
+  max-width:700px;
+  margin:10px auto;
+  padding:10px;
+  border:2px dashed #f57f17;
+  border-radius:12px;
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  align-items:center;
+}
+.sentence {
+  padding:10px 15px;
+  margin:8px;
+  background:#ffcc80;
+  border-radius:10px;
+  cursor:pointer;
+  user-select:none;
+}
+.sentence.dragging { opacity:0.5; }
+
+.controls {
+  margin-top:20px;
+}
+.controls button {
+  padding:10px 20px;
+  margin:5px;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+  font-size:16px;
+  background:#f57f17;
+  color:white;
+  transition:0.3s;
+}
+.controls button:hover {
+  background:#e65100;
+}
+
+#score {
+  margin-top:15px;
+  font-size:22px;
+  font-weight:bold;
+  color:#333;
+}
+#message {
+  font-size:24px;
+  color:#bf360c;
+  font-weight:bold;
+  margin-top:10px;
+  white-space:pre-line;
+}
+</style>
+
+<script>
+const levels = [
+  [
+    "एक समय की बात है, जंगल में एक शेर रहता था।",
+    "शेर रोज सोता था और जंगल में राज करता था।",
+    "एक दिन शेर बीमार पड़ गया।",
+    "जानवरों ने उसकी मदद की।",
+    "शेर ने सबका धन्यवाद किया।"
+  ],
+  [
+    "एक किसान के पास एक हंस था।",
+    "वह रोज सोने का अंडा देता था।",
+    "किसान लालची हो गया।",
+    "उसने हंस को मार दिया।",
+    "अब उसे कुछ नहीं मिला।"
+  ]
+];
+
+let currentLevel = 0;
+let score = 0;
+let storyOrder = [];
+
+const sentencePool = document.getElementById("sentencePool");
+const storyArea = document.getElementById("storyArea");
+const scoreEl = document.getElementById("score");
+const messageEl = document.getElementById("message");
+
+function loadLevel(levelIndex){
+  score = 0;
+  storyOrder = [];
+  scoreEl.innerText = "Score: " + score;
+  messageEl.innerText = "";
+
+  sentencePool.innerHTML = "";
+  storyArea.innerHTML = "";
+
+  const storySentences = levels[levelIndex];
+  const shuffled = storySentences.slice().sort(()=>Math.random()-0.5);
+
+  shuffled.forEach(text=>{
+    const div = document.createElement("div");
+    div.className = "sentence";
+    div.draggable = true;
+    div.innerText = text;
+    sentencePool.appendChild(div);
+
+    div.addEventListener("dragstart", e=>{
+      div.classList.add("dragging");
+      e.dataTransfer.setData("text", text);
+    });
+    div.addEventListener("dragend", e=>{
+      div.classList.remove("dragging");
+    });
+  });
+
+  storyArea.addEventListener("dragover", e=>{
+    e.preventDefault();
+  });
+  storyArea.addEventListener("drop", e=>{
+    const text = e.dataTransfer.getData("text");
+    const draggedDiv = Array.from(sentencePool.children).find(d=>d.innerText===text);
+    if(draggedDiv){
+      storyArea.appendChild(draggedDiv);
+      storyOrder.push(text);
+      updateScore();
+    }
+  });
+}
+
+function startGame(){
+  document.getElementById("intro").style.display = "none";
+  document.getElementById("gameArea").style.display = "block";
+  loadLevel(currentLevel);
+}
+
+function stopGame(){
+  messageEl.innerText = "⏹️ खेल रोक दिया गया।\nआपका Final Score: " + score;
+}
+
+function backToIntro(){
+  document.getElementById("intro").style.display = "block";
+  document.getElementById("gameArea").style.display = "none";
+}
+
+function nextLevel(){
+  if(currentLevel < levels.length-1){
+    currentLevel++;
+    loadLevel(currentLevel);
+  } else {
+    messageEl.innerText = "🎯 सभी लेवल पूरे हो गए!";
+  }
+}
+
+// update score and messages
+function updateScore(){
+  const storySentences = levels[currentLevel];
+  let currentScore = 0;
+  let correct = true;
+  for(let i=0;i<storyOrder.length;i++){
+    if(storyOrder[i]===storySentences[i]){
+      currentScore += 10;
+    } else {
+      currentScore -= 5;
+      correct = false;
+    }
+  }
+  score = currentScore;
+  scoreEl.innerText = "Score: "+score;
+
+  if(correct){
+    messageEl.innerText = "✅ सही क्रम!";
+  } else {
+    messageEl.innerText = "❌ गलत क्रम!";
+  }
+
+  if(storyOrder.length === storySentences.length){
+    messageEl.innerText = `🎉 कहानी पूरी हुई!\nआपका Final Score: ${score}\n${correct ? "आपने कहानी सही क्रम में बनाई! ✅" : "कहानी में कुछ गलतियाँ हुईं ❌"}`;
+  }
+}
+</script>
+
+{% endblock %}

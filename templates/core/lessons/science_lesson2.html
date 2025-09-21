@@ -1,0 +1,187 @@
+{% extends "shared/base.html" %}
+{% block title %}Chemistry Lesson 2{% endblock %}
+{% block content %}
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #fff3e0;
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+}
+.game-container {
+    background: #ffffff;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0px 5px 20px rgba(0,0,0,0.1);
+    max-width: 600px;
+    width: 100%;
+    text-align: center;
+}
+h1 {
+    color: #e65100;
+}
+button {
+    margin: 5px;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    background-color: #fb8c00;
+    color: white;
+    transition: 0.3s;
+}
+button:hover {
+    background-color: #ef6c00;
+}
+.options button {
+    display: block;
+    width: 80%;
+    margin: 10px auto;
+    background-color: #ffb74d;
+}
+.options button:hover {
+    background-color: #ffa726;
+}
+#message {
+    font-size: 18px;
+    margin: 10px 0;
+    color: #c62828;
+}
+.intro {
+    font-size: 16px;
+    margin-bottom: 20px;
+    color: #e65100;
+}
+</style>
+
+<div class="game-container">
+    <h1>Chemical Reactions Game</h1>
+    <div id="level-info">Introduction</div>
+    <div id="question">
+        <div class="intro">
+            Welcome to the Reactions Quiz! <br>
+            Test your knowledge on types of reactions and their products. <br>
+            Press Start to begin!
+        </div>
+    </div>
+    <div class="options" id="options"></div>
+    <div id="message"></div>
+    <div>
+        <button id="startBtn">Start</button>
+        <button id="stopBtn">Stop</button>
+        <button id="nextBtn">Next Level</button>
+        <button id="backBtn">Back</button>
+    </div>
+</div>
+
+<script>
+const quizData = [
+    // Level 1: Combination Reactions
+    [
+        { question: "H2 + O2 → ?", options: ["H2O", "H2O2", "HO", "O2H"], answer: "H2O" },
+        { question: "Na + Cl2 → ?", options: ["NaCl", "NaCl2", "Na2Cl", "Na2Cl2"], answer: "NaCl" }
+    ],
+    // Level 2: Decomposition Reactions
+    [
+        { question: "2H2O2 → ?", options: ["2H2O + O2", "H2O + O", "H2 + O2", "2H + O2"], answer: "2H2O + O2" },
+        { question: "CaCO3 → ?", options: ["CaO + CO2", "Ca + CO3", "CaO + C", "CaCO"], answer: "CaO + CO2" }
+    ],
+    // Level 3: Displacement Reactions
+    [
+        { question: "Zn + HCl → ?", options: ["ZnCl2 + H2", "ZnCl + H2O", "ZnH + Cl2", "ZnCl2 + O2"], answer: "ZnCl2 + H2" },
+        { question: "Fe + CuSO4 → ?", options: ["FeSO4 + Cu", "FeCu + SO4", "Fe + Cu", "FeSO4 + CuSO4"], answer: "FeSO4 + Cu" }
+    ]
+];
+
+let currentLevel = -1; // -1 = intro
+let currentQuestion = 0;
+let score = 0;
+let gameStarted = false;
+
+const questionEl = document.getElementById("question");
+const optionsEl = document.getElementById("options");
+const messageEl = document.getElementById("message");
+const levelInfoEl = document.getElementById("level-info");
+
+document.getElementById("startBtn").addEventListener("click", startGame);
+document.getElementById("stopBtn").addEventListener("click", stopGame);
+document.getElementById("nextBtn").addEventListener("click", nextLevel);
+document.getElementById("backBtn").addEventListener("click", previousLevel);
+
+function startGame() {
+    if (currentLevel === -1) currentLevel = 0;
+    gameStarted = true;
+    currentQuestion = 0;
+    score = 0;
+    showQuestion();
+    messageEl.textContent = "";
+}
+
+function stopGame() {
+    gameStarted = false;
+    questionEl.innerHTML = "<div class='intro'>Game stopped. Press Start to play again.</div>";
+    optionsEl.innerHTML = "";
+    messageEl.textContent = `Your score: ${score}`;
+}
+
+function showQuestion() {
+    if (!gameStarted) return;
+
+    const questionData = quizData[currentLevel][currentQuestion];
+    questionEl.textContent = questionData.question;
+    optionsEl.innerHTML = "";
+    questionData.options.forEach(option => {
+        const btn = document.createElement("button");
+        btn.textContent = option;
+        btn.addEventListener("click", () => checkAnswer(option));
+        optionsEl.appendChild(btn);
+    });
+    levelInfoEl.textContent = "Level " + (currentLevel + 1);
+}
+
+function checkAnswer(selected) {
+    const questionData = quizData[currentLevel][currentQuestion];
+    if (selected === questionData.answer) {
+        messageEl.textContent = "Correct!";
+        score++;
+    } else {
+        messageEl.textContent = "Wrong! Correct answer: " + questionData.answer;
+    }
+    currentQuestion++;
+    if (currentQuestion < quizData[currentLevel].length) {
+        setTimeout(showQuestion, 1000);
+    } else {
+        messageEl.textContent += ` Level completed! Score: ${score}`;
+        optionsEl.innerHTML = "";
+    }
+}
+
+function nextLevel() {
+    if (currentLevel < quizData.length - 1) {
+        currentLevel++;
+        startGame();
+    } else {
+        messageEl.textContent = "No more levels!";
+    }
+}
+
+function previousLevel() {
+    if (currentLevel > 0) {
+        currentLevel--;
+        startGame();
+    } else {
+        currentLevel = -1; // Back to intro
+        questionEl.innerHTML = `<div class="intro">
+            Welcome to the Reactions Quiz! <br>
+            Test your knowledge on types of reactions and their products. <br>
+            Press Start to begin!
+        </div>`;
+        optionsEl.innerHTML = "";
+        messageEl.textContent = "";
+        levelInfoEl.textContent = "Introduction";
+    }
+}
+</script>
+{% endblock %}

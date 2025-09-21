@@ -1,0 +1,278 @@
+{% extends 'shared/base.html' %}
+{% block title %}Idioms Match Game{% endblock %}
+
+{% block content %}
+<style>
+body {
+  font-family: 'Arial', sans-serif;
+  background: #d0e7ff;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+  color: #333;
+}
+
+h1 {
+  background: #4a90e2;
+  color: white;
+  margin: 0;
+  padding: 20px 0;
+  font-size: 34px;
+  font-weight: bold;
+  text-shadow: 1px 1px 2px #333;
+}
+
+.intro {
+  background: white;
+  margin: 20px auto;
+  padding: 20px;
+  max-width: 700px;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  font-size: 17px;
+  line-height: 1.6;
+}
+
+button {
+  padding: 12px 30px;
+  font-size: 18px;
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  margin-top: 15px;
+  transition: 0.3s;
+  box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+}
+button:hover {
+  transform: scale(1.05);
+  background-color: #357ab8;
+}
+
+.game-container {
+  display: none;
+  justify-content: center;
+  gap: 40px;
+  margin: 30px auto;
+  flex-wrap: wrap;
+  max-width: 900px;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.item {
+  background: #ffffff;
+  border: 2px solid #4a90e2;
+  border-radius: 12px;
+  padding: 14px 22px;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.12);
+  transition: all 0.3s ease;
+  user-select: none;
+}
+
+.item:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+  background: #cde6ff;
+}
+
+.selected { background: #ffe082 !important; transform: scale(1.05); }
+.correct { background: #66bb6a !important; color: white; animation: correctPop 0.3s ease; transform: scale(1.1); }
+.wrong { background: #ef5350 !important; color: white; animation: shake 0.3s; }
+
+#message { margin-top: 25px; font-size: 24px; font-weight: bold; color: #4a90e2; }
+#gameOverMsg { display: none; margin-top: 30px; font-size: 28px; font-weight: bold; color: #ff9800; animation: fadeIn 1s ease; }
+
+.controls { margin-top: 20px; }
+.controls button { padding: 10px 20px; margin: 5px; border: none; border-radius: 10px; cursor: pointer; font-size: 16px; background: #4a90e2; color: white; transition: 0.3s; }
+.controls button:hover { background: #357ab8; }
+
+@keyframes shake {
+  0% { transform: translateX(0); } 25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); } 75% { transform: translateX(-5px); }
+  100% { transform: translateX(0); }
+}
+@keyframes correctPop { 0% { transform: scale(0.8); } 50% { transform: scale(1.2); } 100% { transform: scale(1.1); } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+</style>
+
+<h1>🎯 मुहावरा मिलान खेल</h1>
+
+<div class="intro" id="intro">
+  <h2>परिचय</h2>
+  <p>मुहावरे हिंदी भाषा को रोचक और अभिव्यक्तिपूर्ण बनाते हैं।  
+     इस खेल में आप मुहावरों और उनके सही अर्थ का मिलान करेंगे।</p>
+  <h3>नियम:</h3>
+  <ul style="text-align:left;">
+    <li>बाईं ओर मुहावरे, दाईं ओर उनके अर्थ (shuffled) होंगे।</li>
+    <li>क्लिक करके सही जोड़ी बनाएं।</li>
+    <li>✅ सही होने पर हरा रंग, ❌ गलत होने पर लाल रंग।</li>
+    <li>सभी जोड़े पूरे करने पर 🎉 “शाबाश” मैसेज मिलेगा।</li>
+  </ul>
+  <button onclick="startGame()">खेल शुरू करें</button>
+</div>
+
+<div class="game-container" id="game">
+  <div class="list" id="idiomsList"></div>
+  <div class="list" id="meaningsList"></div>
+</div>
+
+<p id="message"></p>
+<p id="gameOverMsg">🏆 आप जीत गए! Game Over 🎉</p>
+
+<div class="controls" id="controls" style="display:none;">
+  <button onclick="stopGame()">Stop</button>
+  <button onclick="backToIntro()">Back</button>
+  <button onclick="restartGame()">Restart</button>
+</div>
+
+<script>
+const idiomsLevel1 = [
+  { idiom: "नाक कटना", meaning: "अपमान होना" },
+  { idiom: "आसमान छूना", meaning: "बहुत उन्नति करना" },
+  { idiom: "नाकों चने चबाना", meaning: "बहुत कष्ट उठाना" },
+  { idiom: "चेहरा खिल उठना", meaning: "बहुत प्रसन्न होना" },
+  { idiom: "नाक में दम करना", meaning: "परेशान करना" }
+];
+
+const idiomsLevel2 = [
+  { idiom: "दिल जीतना", meaning: "किसी का मन खुश करना" },
+  { idiom: "हाथ धोना", meaning: "जिम्मेदारी से बचना" },
+  { idiom: "पानी-पानी होना", meaning: "बहुत शर्मिंदा होना" },
+  { idiom: "आँखों का तारा", meaning: "बहुत प्यारा" },
+  { idiom: "सिर चढ़ना", meaning: "अभिमान होना" }
+];
+
+let idioms = idiomsLevel1;
+let selectedIdiom = null;
+let selectedMeaning = null;
+let matched = 0;
+
+const idiomsList = document.getElementById("idiomsList");
+const meaningsList = document.getElementById("meaningsList");
+const messageEl = document.getElementById("message");
+const gameOverMsg = document.getElementById("gameOverMsg");
+
+function startGame() {
+  document.getElementById("intro").style.display = "none";
+  document.getElementById("game").style.display = "flex";
+  document.getElementById("controls").style.display = "block";
+  matched = 0;
+  messageEl.innerText = "";
+  gameOverMsg.style.display = "none";
+  loadLevel(idioms);
+}
+
+function stopGame() {
+  idiomsList.innerHTML = '';
+  meaningsList.innerHTML = '';
+  messageEl.innerText = "⏹️ खेल रोक दिया गया!";
+}
+
+function backToIntro() {
+  stopGame();
+  document.getElementById("intro").style.display = "block";
+  document.getElementById("game").style.display = "none";
+  document.getElementById("controls").style.display = "none";
+}
+
+function restartGame() {
+  idiomsList.innerHTML = '';
+  meaningsList.innerHTML = '';
+  selectedIdiom = null;
+  selectedMeaning = null;
+  matched = 0;
+  messageEl.innerText = "";
+  gameOverMsg.style.display = "none";
+  loadLevel(idioms);
+}
+
+function nextLevel() {
+  idiomsList.innerHTML = '';
+  meaningsList.innerHTML = '';
+  idioms = idiomsLevel2;
+  restartGame();
+}
+
+function loadLevel(levelIdioms){
+  let shuffled = [...levelIdioms].sort(() => Math.random() - 0.5);
+  idiomsList.innerHTML = '';
+  meaningsList.innerHTML = '';
+
+  levelIdioms.forEach(item => {
+    const div = document.createElement("div");
+    div.classList.add("item");
+    div.innerText = item.idiom;
+    div.onclick = () => selectIdiom(div, item.idiom);
+    idiomsList.appendChild(div);
+  });
+
+  shuffled.forEach(item => {
+    const div = document.createElement("div");
+    div.classList.add("item");
+    div.innerText = item.meaning;
+    div.onclick = () => selectMeaning(div, item.meaning);
+    meaningsList.appendChild(div);
+  });
+}
+
+function selectIdiom(div, idiom) {
+  if(div.classList.contains("correct")) return;
+  clearSelection("idiomsList");
+  div.classList.add("selected");
+  selectedIdiom = idiom;
+  checkMatch();
+}
+
+function selectMeaning(div, meaning) {
+  if(div.classList.contains("correct")) return;
+  clearSelection("meaningsList");
+  div.classList.add("selected");
+  selectedMeaning = meaning;
+  checkMatch();
+}
+
+function checkMatch() {
+  if(selectedIdiom && selectedMeaning){
+    let pair = idioms.find(i=>i.idiom===selectedIdiom && i.meaning===selectedMeaning);
+    let idiomDiv = [...idiomsList.children].find(c=>c.innerText===selectedIdiom);
+    let meaningDiv = [...meaningsList.children].find(c=>c.innerText===selectedMeaning);
+
+    if(pair){
+      idiomDiv.classList.remove("selected");
+      meaningDiv.classList.remove("selected");
+      idiomDiv.classList.add("correct");
+      meaningDiv.classList.add("correct");
+      matched++;
+      if(matched === idioms.length){
+        messageEl.innerText = "🎉 शाबाश! आपने सभी मुहावरे सही मिला लिए!";
+        setTimeout(() => { gameOverMsg.style.display = "block"; }, 800);
+      }
+    } else {
+      idiomDiv.classList.add("wrong");
+      meaningDiv.classList.add("wrong");
+      setTimeout(()=>{
+        idiomDiv.classList.remove("wrong","selected");
+        meaningDiv.classList.remove("wrong","selected");
+      },800);
+    }
+
+    selectedIdiom = null;
+    selectedMeaning = null;
+  }
+}
+
+function clearSelection(listId){
+  [...document.getElementById(listId).children].forEach(c=>{
+    if(!c.classList.contains("correct")){ c.classList.remove("selected"); }
+  });
+}
+</script>
+{% endblock %}

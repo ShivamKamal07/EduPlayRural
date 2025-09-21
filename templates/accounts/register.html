@@ -1,0 +1,250 @@
+{% extends 'shared/auth_base.html' %}
+{% load custom_filters %}
+{% block title %}Student Registration{% endblock %}
+
+{% block content %}
+<style>
+  /* Card hover glow */
+  .reg-card {
+    transition: all 0.3s ease-in-out;
+    border-radius: 12px;
+    max-width: 900px;   /* 👈 card ki max width limit */
+    margin: 30px auto;  /* 👈 center align */
+  }
+  .reg-card:hover {
+    box-shadow: 0 0 25px rgba(0, 123, 255, 0.6);
+    border: 1px solid rgba(0, 123, 255, 0.8);
+  }
+
+  /* Input focus + hover effect */
+  .form-control:hover,
+  .form-select:hover {
+    border-color: #0d6efd;
+    box-shadow: 0 0 8px rgba(13, 110, 253, 0.4);
+    transition: 0.2s ease-in-out;
+  }
+  .form-control:focus,
+  .form-select:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 8px rgba(13, 110, 253, 0.5);
+  }
+
+  /* Buttons hover */
+  .btn-primary {
+    transition: all 0.3s ease-in-out;
+  }
+  .btn-primary:hover {
+    box-shadow: 0 0 15px rgba(13, 110, 253, 0.6);
+    transform: scale(1.03);
+  }
+  .btn-outline-secondary:hover {
+    box-shadow: 0 0 10px rgba(108, 117, 125, 0.5);
+    transform: scale(1.02);
+  }
+
+  /* Password toggle icon */
+  .password-wrapper {
+    position: relative;
+  }
+  .password-wrapper .toggle-password {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #6c757d;
+  }
+  .password-wrapper .toggle-password:hover {
+    color: #0d6efd;
+  }
+</style>
+
+
+<div class="card reg-card shadow-lg border-0">
+  <!-- Header -->
+  <div class="card-header bg-primary text-white text-center rounded-top">
+    <i class="fas fa-user-circle fa-2x mb-2"></i>
+    <h3 class="mb-0 fw-bold">Gamefied — Student Registration</h3>
+  </div>
+
+  <!-- Body -->
+  <div class="card-body">
+    {% if form.errors %}
+    <div class="alert alert-danger">
+      <strong>Please fix the errors below.</strong>
+    </div>
+    {% endif %}
+
+    <form method="post" novalidate>
+      {% csrf_token %}
+      <div class="row g-4">
+        
+        <!-- LEFT COLUMN -->
+        <div class="col-md-6 border-end">
+          <h5 class="text-primary fw-bold mb-3">Account & Profile</h5>
+
+          <div class="mb-3">
+            <label class="form-label">Username</label>
+            {{ form.username|add_class:"form-control" }}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Email</label>
+            {{ form.email|add_class:"form-control" }}
+          </div>
+
+          <div class="mb-3 password-wrapper">
+            <label class="form-label">Password</label>
+            {{ form.password|add_class:"form-control" }}
+            <i class="fas fa-eye toggle-password" data-target="id_password"></i>
+          </div>
+
+          <div class="mb-3 password-wrapper">
+            <label class="form-label">Confirm Password</label>
+            {{ form.confirm_password|add_class:"form-control" }}
+            <i class="fas fa-eye toggle-password" data-target="id_confirm_password"></i>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Language</label>
+            {{ form.language|add_class:"form-select" }}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Student Class</label>
+            {{ form.student_class|add_class:"form-select" }}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Board</label>
+            {{ form.board|add_class:"form-select" }}
+          </div>
+        </div>
+
+        <!-- RIGHT COLUMN -->
+        <div class="col-md-6">
+          <h5 class="text-primary fw-bold mb-3">Personal & Education Info</h5>
+
+          <div class="mb-3">
+            <label class="form-label">Roll Number</label>
+            {{ form.roll_number|add_class:"form-control" }}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Student Name</label>
+            {{ form.student_name|add_class:"form-control" }}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Father Name</label>
+            {{ form.father_name|add_class:"form-control" }}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Mobile Number</label>
+            {{ form.mobile_number|add_class:"form-control" }}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Pincode</label>
+            {{ form.pincode|add_class:"form-control" }}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Address</label>
+            {{ form.address|add_class:"form-control" }}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">School Name</label>
+            {{ form.school_name|add_class:"form-control" }}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label d-block">Subjects</label>
+            <div id="subject-checkboxes">
+              <div class="alert alert-info">Please select Class and Board</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Buttons -->
+      <div class="d-flex justify-content-between mt-4">
+        <a href="{% url 'login' %}" class="btn btn-outline-secondary">
+          <i class="fas fa-arrow-left me-1"></i> Back to Login
+        </a>
+        <button type="submit" class="btn btn-primary">
+          <i class="fas fa-user-plus me-1"></i> Register
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Password toggle + Subjects Ajax Script -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Toggle Password Visibility
+    document.querySelectorAll(".toggle-password").forEach(icon => {
+      icon.addEventListener("click", function () {
+        const targetId = this.getAttribute("data-target");
+        const input = document.getElementById(targetId);
+        if (input) {
+          if (input.type === "password") {
+            input.type = "text";
+            this.classList.remove("fa-eye");
+            this.classList.add("fa-eye-slash");
+          } else {
+            input.type = "password";
+            this.classList.remove("fa-eye-slash");
+            this.classList.add("fa-eye");
+          }
+        }
+      });
+    });
+
+    // Load Subjects dynamically
+    const boardField = document.getElementById("id_board");
+    const classField = document.getElementById("id_student_class");
+    const subjectBox = document.getElementById("subject-checkboxes");
+
+    function loadSubjects() {
+      const board = boardField.value;
+      const studentClass = classField.value;
+
+      if (board && studentClass) {
+        fetch(`/accounts/ajax/load-subjects/?board=${board}&student_class=${studentClass}`)
+          .then(response => response.json())
+          .then(data => {
+            subjectBox.innerHTML = "";
+            if (data.length > 0) {
+              let html = '<div class="row">';
+              data.forEach(sub => {
+                html += `
+                  <div class="col-md-6 mb-2">
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" name="subjects" value="${sub.id}" id="sub-${sub.id}">
+                      <label class="form-check-label" for="sub-${sub.id}">
+                        ${sub.name}
+                      </label>
+                    </div>
+                  </div>
+                `;
+              });
+              html += '</div>';
+              subjectBox.innerHTML = html;
+            } else {
+              subjectBox.innerHTML = '<div class="alert alert-warning">No subjects available.</div>';
+            }
+          });
+      } else {
+        subjectBox.innerHTML = '<div class="alert alert-info">Please select Class and Board</div>';
+      }
+    }
+
+    boardField.addEventListener("change", loadSubjects);
+    classField.addEventListener("change", loadSubjects);
+  });
+</script>
+{% endblock %}

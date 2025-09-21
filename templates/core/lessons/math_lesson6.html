@@ -1,0 +1,102 @@
+{% extends "shared/base.html" %}
+{% block title %}Lesson 6: Circle{% endblock %}
+{% block content %}
+
+<style>
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    margin: 0; padding: 0;
+  }
+
+  .container {
+    max-width: 800px; margin: auto; padding: 30px; text-align: center;
+  }
+
+  /* Intro Page */
+  .intro {
+    background: white; padding: 50px;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    margin-bottom: 30px;
+    transition: transform 0.3s ease, box-shadow 0.3s;
+  }
+  .intro:hover { transform: scale(1.02); box-shadow: 0 12px 30px rgba(0,0,0,0.25); }
+  .intro h1 { font-size: 2rem; margin-bottom: 15px; color: #b45309; }
+  .intro p { color: #92400e; font-size: 1.1rem; }
+  .start-btn {
+    margin-top: 20px; padding: 14px 35px;
+    background: linear-gradient(90deg, #f59e0b, #d97706);
+    color: white; font-weight: bold; border: none; border-radius: 50px;
+    cursor: pointer; transition: 0.3s;
+  }
+  .start-btn:hover { background: linear-gradient(90deg, #d97706, #b45309); transform: scale(1.05); }
+
+  /* Game Page */
+  .game {
+    display: none; background: white;
+    padding: 45px; border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  }
+  h1 { color: #b45309; margin-bottom: 20px; }
+  .question { font-size: 1.3rem; margin-bottom: 25px; color: #b45309; }
+
+  .option {
+    display: block; margin: 12px auto;
+    padding: 14px 30px; width: 70%;
+    background: #fde68a; border-radius: 14px;
+    cursor: pointer; transition: 0.2s; font-weight: 500;
+  }
+  .option:hover { background: #fcd34d; }
+
+  .back-btn {
+    margin-top: 30px; padding: 12px 28px;
+    background: #ef4444; color: white;
+    border: none; border-radius: 14px; cursor: pointer;
+  }
+</style>
+
+<div class="container">
+  <!-- Intro Page -->
+  <div class="intro" id="intro-page">
+    <h1>Welcome to Circle Game ⚪</h1>
+    <p>Explore radius, diameter, and circumference with a fun interactive quiz!</p>
+    <button class="start-btn" onclick="startGame()">Start Game</button>
+  </div>
+
+  <!-- Game Page -->
+  <div class="game" id="game-page">
+    <h1>Lesson 6: Circle</h1>
+    <p class="question">If the radius of a circle is 7, what is the diameter?</p>
+
+    <div class="option" onclick="checkAnswer(this, '14')">14</div>
+    <div class="option" onclick="checkAnswer(this, '14')">21</div>
+    <div class="option" onclick="checkAnswer(this, '14')">7</div>
+    <div class="option" onclick="checkAnswer(this, '14')">28</div>
+
+    <button class="back-btn" onclick="goBack()">Back</button>
+  </div>
+</div>
+
+<script>
+  function startGame() {
+    document.getElementById("intro-page").style.display = "none";
+    document.getElementById("game-page").style.display = "block";
+  }
+
+  function checkAnswer(el, correct) {
+    if (el.innerText === correct) {
+      el.style.background = "#bbf7d0"; // green
+      alert("✅ Correct!");
+    } else {
+      el.style.background = "#fecaca"; // red
+      alert("❌ Wrong, Try Again!");
+    }
+  }
+
+  function goBack() {
+    window.history.back();
+  }
+</script>
+
+{% endblock %}

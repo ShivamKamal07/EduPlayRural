@@ -1,0 +1,115 @@
+{% extends 'shared/base.html' %}
+{% block title %}{{ subject_name }} Lessons{% endblock %}
+
+{% block content %}
+<div class="content-header">
+  <div class="container-fluid">
+    <div class="row mb-2">
+      <div class="col-sm-6">
+        <h1 class="m-0"><i class="fas fa-book-reader"></i> {{ subject_name }} - Lessons</h1>
+      </div>
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-right">
+          <li class="breadcrumb-item"><a href="{% url 'subjects' %}">Subjects</a></li>
+          <li class="breadcrumb-item active">{{ subject_name }} Lessons</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section class="content">
+  <div class="container-fluid">
+    <div class="row">
+      {% for lesson in lessons %}
+      <div class="col-md-4 col-sm-6 mb-4">
+        <div class="card card-outline card-success h-100 lesson-card" 
+             onclick="window.location.href='{% url 'lesson_detail' subject_name forloop.counter %}'"
+             style="cursor:pointer;">
+          <div class="card-body text-center">
+            <i class="fas fa-file-alt fa-3x lesson-icon mb-3"></i>
+            <h4 class="font-weight-bold">{{ lesson }}</h4>
+            <p class="text-muted">6 topics inside</p>
+
+            <!-- Progress Bar (dummy for now) -->
+            <div class="progress progress-sm mb-2">
+              <div class="progress-bar bg-success" style="width: 0%"></div>
+            </div>
+            <small class="text-muted">Progress: 0%</small>
+
+            <div class="mt-3">
+              <a href="{% url 'lesson_detail' subject_name forloop.counter %}" 
+                 class="btn btn-sm btn-success open-btn">
+                <span>Open Lesson</span> <i class="fas fa-arrow-right"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<style>
+/* Card base style */
+.lesson-card {
+  transition: all 0.4s ease-in-out;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* Card hover */
+.lesson-card:hover {
+  transform: scale(1.05);
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: #fff;
+  box-shadow: 0px 10px 20px rgba(40, 167, 69, 0.3);
+}
+
+/* Card text + small text color shift */
+.lesson-card:hover h4,
+.lesson-card:hover p,
+.lesson-card:hover small {
+  color: #fff !important;
+}
+
+/* Icon hover animation */
+.lesson-icon {
+  color: #28a745;
+  transition: transform 0.4s ease, color 0.4s ease;
+}
+.lesson-card:hover .lesson-icon {
+  transform: scale(1.3) rotate(5deg);
+  color: #ffc107; /* golden yellow */
+}
+
+/* Button hover effect */
+.open-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #28a745;
+  border: none;
+  color: #fff !important;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  padding: 6px 14px;
+  box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+}
+
+.open-btn:hover {
+  background: #218838;
+  transform: translateX(5px);
+  box-shadow: 0 6px 14px rgba(40, 167, 69, 0.5);
+}
+
+.open-btn i {
+  transition: transform 0.3s ease;
+}
+.open-btn:hover i {
+  transform: translateX(4px);
+}
+</style>
+{% endblock %}

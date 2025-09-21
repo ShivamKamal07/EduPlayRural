@@ -1,0 +1,36 @@
+{% extends 'shared/base.html' %}
+{% block title %}Quiz Not Found{% endblock %}
+
+{% block content %}
+<div class="content-header">
+  <div class="container-fluid">
+    <div class="row mb-2">
+      <div class="col-sm-6">
+        <h1 class="m-0 text-danger"><i class="fas fa-exclamation-triangle"></i> Quiz Not Found</h1>
+      </div>
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-right">
+          <li class="breadcrumb-item"><a href="{% url 'quizzes_subjects' %}">Quizzes</a></li>
+          <li class="breadcrumb-item"><a href="{% url 'quiz_list' subject_name %}">{{ subject_name }}</a></li>
+          <li class="breadcrumb-item active">Quiz {{ quiz_no }}</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section class="content">
+  <div class="container-fluid">
+    <div class="card card-outline card-danger shadow-sm">
+      <div class="card-body text-center">
+        <i class="fas fa-times-circle fa-4x text-danger mb-3"></i>
+        <h3>Quiz {{ quiz_no }} for {{ subject_name }} is not available 🚧</h3>
+        <p class="text-muted">This quiz is under construction. Please check back later!</p>
+        <a href="{% url 'quiz_list' subject_name %}" class="btn btn-outline-primary mt-3">
+          <i class="fas fa-arrow-left"></i> Back to {{ subject_name }} Quizzes
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

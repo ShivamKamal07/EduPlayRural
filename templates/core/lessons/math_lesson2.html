@@ -1,0 +1,73 @@
+{% extends 'shared/base.html' %}
+{% block title %}Math - Fractions{% endblock %}
+
+
+{% block content %}
+
+<style>
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #fef9c3, #fef3c7);
+    margin: 0; padding: 0;
+  }
+
+  .container {
+    max-width: 700px; margin: auto; padding: 30px; text-align: center;
+  }
+
+  .game {
+    background: white; padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  }
+
+  h1 { color: #374151; margin-bottom: 20px; }
+  .question { font-size: 1.2rem; margin-bottom: 20px; color: #1f2937; }
+
+  .option {
+    display: block; margin: 10px auto;
+    padding: 12px 25px; width: 60%;
+    background: #f3f4f6; border-radius: 12px;
+    cursor: pointer; transition: 0.2s;
+  }
+
+  .option:hover { background: #fde68a; }
+
+  .back-btn {
+    margin-top: 25px; padding: 10px 20px;
+    background: #ef4444; color: white;
+    border: none; border-radius: 8px; cursor: pointer;
+  }
+</style>
+
+<div class="container">
+  <div class="game">
+    <h1>Lesson 2: Fractions</h1>
+    <p class="question">What is 1/2 + 1/4?</p>
+    <div class="option" onclick="checkAnswer(this, '3/4')">2/4</div>
+    <div class="option" onclick="checkAnswer(this, '3/4')">3/4</div>
+    <div class="option" onclick="checkAnswer(this, '3/4')">1/3</div>
+    <div class="option" onclick="checkAnswer(this, '3/4')">1/2</div>
+
+    <button class="back-btn" onclick="goBack()">Back to Lessons</button>
+  </div>
+</div>
+
+<script>
+  function checkAnswer(el, correct) {
+    if (el.innerText === correct) {
+      el.style.background = "#bbf7d0"; // green
+      alert("✅ Correct!");
+    } else {
+      el.style.background = "#fecaca"; // red
+      alert("❌ Wrong, Try Again!");
+    }
+  }
+
+  function goBack() {
+    window.history.back();
+  }
+</script>
+
+
+{% endblock %}

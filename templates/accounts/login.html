@@ -1,0 +1,62 @@
+{% extends 'shared/auth_base.html' %}
+{% block title %}Login{% endblock %}
+{% block content %}
+<style>
+  /* Center card in portrait mode */
+  .login-card {
+    max-width: 400px;
+    margin: 40px auto;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    transition: all 0.3s ease-in-out;
+  }
+
+  /* Glow border on hover */
+  .login-card:hover {
+    box-shadow: 0 0 20px rgba(0, 123, 255, 0.7);
+    border: 1px solid rgba(0, 123, 255, 0.8);
+  }
+
+  /* Icon styling */
+  .login-icon {
+    font-size: 50px;
+    color: #0d6efd;
+    margin-bottom: 10px;
+  }
+
+  /* Button hover glow */
+  .btn-login {
+    transition: all 0.3s ease-in-out;
+  }
+
+  .btn-login:hover {
+    box-shadow: 0 0 15px rgba(0,123,255,0.7);
+    transform: scale(1.03);
+  }
+</style>
+
+<div class="card login-card p-4">
+  <div class="text-center">
+    <i class="bi bi-box-arrow-in-right login-icon"></i>
+    <h3 class="mb-3">Login</h3>
+  </div>
+  <form method="post">
+    {% csrf_token %}
+    <div class="mb-3">
+      <label class="form-label">Username</label>
+      <input type="text" name="username" class="form-control" placeholder="Enter username">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Password</label>
+      <input type="password" name="password" class="form-control" placeholder="Enter password">
+    </div>
+    <button type="submit" class="btn btn-primary w-100 btn-login">Login</button>
+  </form>
+  <p class="mt-3 text-center">
+    Don't have an account? <a href="{% url 'register' %}">Register</a>
+  </p>
+</div>
+
+<!-- Bootstrap Icons CDN (needed for login icon) -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+{% endblock %}

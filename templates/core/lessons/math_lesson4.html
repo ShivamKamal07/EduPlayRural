@@ -1,0 +1,102 @@
+{% extends "shared/base.html" %}
+{% block title %}Lesson 4: Mensuration{% endblock %}
+{% block content %}
+
+<style>
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #f0fdf4, #bbf7d0);
+    margin: 0; padding: 0;
+  }
+
+  .container {
+    max-width: 800px; margin: auto; padding: 30px; text-align: center;
+  }
+
+  /* Intro Page */
+  .intro {
+    background: white; padding: 50px;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    margin-bottom: 30px;
+    transition: transform 0.3s ease, box-shadow 0.3s;
+  }
+  .intro:hover { transform: scale(1.02); box-shadow: 0 12px 30px rgba(0,0,0,0.25); }
+  .intro h1 { font-size: 2rem; margin-bottom: 15px; color: #047857; }
+  .intro p { color: #065f46; font-size: 1.1rem; }
+  .start-btn {
+    margin-top: 20px; padding: 14px 35px;
+    background: linear-gradient(90deg, #10b981, #059669);
+    color: white; font-weight: bold; border: none; border-radius: 50px;
+    cursor: pointer; transition: 0.3s;
+  }
+  .start-btn:hover { background: linear-gradient(90deg, #059669, #047857); transform: scale(1.05); }
+
+  /* Game Page */
+  .game {
+    display: none; background: white;
+    padding: 45px; border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  }
+  h1 { color: #047857; margin-bottom: 20px; }
+  .question { font-size: 1.3rem; margin-bottom: 25px; color: #065f46; }
+
+  .option {
+    display: block; margin: 12px auto;
+    padding: 14px 30px; width: 70%;
+    background: #bbf7d0; border-radius: 14px;
+    cursor: pointer; transition: 0.2s; font-weight: 500;
+  }
+  .option:hover { background: #86efac; }
+
+  .back-btn {
+    margin-top: 30px; padding: 12px 28px;
+    background: #ef4444; color: white;
+    border: none; border-radius: 14px; cursor: pointer;
+  }
+</style>
+
+<div class="container">
+  <!-- Intro Page -->
+  <div class="intro" id="intro-page">
+    <h1>Welcome to Mensuration Game 📏</h1>
+    <p>Practice calculating areas and volumes with interactive questions!</p>
+    <button class="start-btn" onclick="startGame()">Start Game</button>
+  </div>
+
+  <!-- Game Page -->
+  <div class="game" id="game-page">
+    <h1>Lesson 4: Mensuration</h1>
+    <p class="question">What is the area of a square with side 5 units?</p>
+
+    <div class="option" onclick="checkAnswer(this, '25')">20</div>
+    <div class="option" onclick="checkAnswer(this, '25')">25</div>
+    <div class="option" onclick="checkAnswer(this, '25')">30</div>
+    <div class="option" onclick="checkAnswer(this, '25')">15</div>
+
+    <button class="back-btn" onclick="goBack()">Back</button>
+  </div>
+</div>
+
+<script>
+  function startGame() {
+    document.getElementById("intro-page").style.display = "none";
+    document.getElementById("game-page").style.display = "block";
+  }
+
+  function checkAnswer(el, correct) {
+    if (el.innerText === correct) {
+      el.style.background = "#bbf7d0"; // green
+      alert("✅ Correct!");
+    } else {
+      el.style.background = "#fecaca"; // red
+      alert("❌ Wrong, Try Again!");
+    }
+  }
+
+  function goBack() {
+    window.history.back();
+  }
+</script>
+
+{% endblock %}
