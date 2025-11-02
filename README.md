@@ -61,20 +61,11 @@ Editable profile fields
 🛠️ Tech Stack
 
 Frontend
-
-HTML5
-
-CSS3
-
-Bootstrap
-
-JavaScript
+HTML5, CSS3, Bootstrap, JavaScript
 
 Backend
 
-Python
-
-Django Framework
+Python, Django Framework
 
 Database
 
@@ -82,5 +73,7 @@ SQLite3 (default)
 
 ⚙️ Installation & Setup
 1️⃣ Clone the Repository
-git clone https://github.com/your-username/EduPlayRural.git
-cd EduPlayRural
+   ```bash
+      git clone https://github.com/your-username/EduPlayRural.git
+      cd EduPlayRural
+
