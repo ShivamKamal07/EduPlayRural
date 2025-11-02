@@ -76,4 +76,29 @@ SQLite3 (default)
    ```bash
       git clone https://github.com/your-username/EduPlayRural.git
       cd EduPlayRural
+2️⃣ Create Virtual Environment
+python -m venv venv
+
+3️⃣ Activate Environment
+
+Windows
+
+venv\Scripts\activate
+
+
+Linux / macOS
+
+source venv/bin/activate
+
+4️⃣ Install Dependencies
+pip install -r requirements.txt
+
+
+(If you don’t have a requirements.txt, I can generate one for you.)
+
+5️⃣ Run Migrations
+python manage.py migrate
+
+6️⃣ Start the Server
+python manage.py runserver
 
