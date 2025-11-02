@@ -1,110 +1,76 @@
-🚀 EduPlay Rural – Learning Management System (LMS)
+# EduPlayRural
 
-EduPlay Rural is a lightweight, student-friendly Learning Management System built using Django, designed especially for rural education accessibility.
-It allows students to learn lessons, take quizzes, track progress, maintain a smart notebook, and interact with an AI chatbot — all in a simple dashboard UI.
+EduPlayRural ek web-based educational app hai jo rural students ke liye subjects, quizzes, progress tracking, smart notebook, leaderboard, chatbot aur bhi bahut kuch access karna aasan banata hai. Dashboard Hindi aur English dono languages support karta hai aur students ke liye ek personalized learning experience provide karta hai.
 
-✅ Features
-👨‍🎓 Student Dashboard
+## Features
 
-Personalized welcome screen
+- **User Dashboard:** Personalized welcome, class info, board, language, and selected subjects.
+- **Profile Management:** Roll number, father/guardian name, mobile, address, school details.
+- **Subjects & Progress Tracking:** Hindi, English, Math, Science jaise subjects me progress dekh sakte hain.
+- **Quizzes:** Self-assessment ke liye interactive quizzes.
+- **Progress Tracker:** Apne progress ko real time me dekhein.
+- **Smart Notebook:** Digital notebook.
+- **Leaderboard:** Peer competition ke liye rankings.
+- **Chatbot:** AI based help aur support ke liye.
 
-Displays class, board, and selected subjects
+## Technologies Used
 
-Quick overview cards for subjects and progress
+- **Frontend:** HTML, CSS, JavaScript, WordPress (frontend focus)
+- **Backend:** Python (`manage.py` aur structure dekh ke shayad Django/Flask)
+- **Database:** SQLite (`db.sqlite3`)
+- **Templates & Static Files:** `/templates` aur `/static`
+- **Virtual Environment:** Python dependencies ke liye `/venv`
 
-📚 Subjects & Lessons
-
-Subject-wise lesson listing
-
-Individual lesson detail pages
-
-Supports multiple subjects such as Hindi, English, Math, Science
-
-📝 Quizzes
-
-Quiz list page
-
-Quizzes categorized by subject
-
-Track your performance over time
-
-📈 Progress Tracking
-
-Displays completion progress for each subject
-
-Helps students monitor their learning journey
-
-🧠 Smart Notebook
-
-A digital notebook for saving personal study notes
-
-Structured by subjects and topics
-
-🏆 Leaderboard
-
-Shows top-performing students
-
-Motivates learning through gamification
-
-🤖 Chatbot (AI Assistant)
-
-Helps students with quick answers
-
-Simplifies concepts and provides instant support
-
-👤 Profile Page
-
-Displays student information (roll number, father’s name, school, etc.)
-
-Editable profile fields
-
-🛠️ Tech Stack
-
-Frontend
-HTML5, CSS3, Bootstrap, JavaScript
-
-Backend
-
-Python, Django Framework
-
-Database
-
-SQLite3 (default)
-
-⚙️ Installation & Setup
-1️⃣ Clone the Repository
-    bash
-      git clone https://github.com/your-username/EduPlayRural.git
-      cd EduPlayRural
+## Project Structure
 
 
-2️⃣ Create Virtual Environment
-bash
-python -m venv venv
+## Getting Started
 
-3️⃣ Activate Environment
-bash
-Windows
-bash
-venv\Scripts\activate
+### Prerequisites
+
+- Python 3.x
+- pip
+- (Optional) venv
+- Node.js & npm (agar frontend ke liye use ho raha ho)
+
+### Installation
+
+1. **Clone the repository:**
+    ```
+    git clone <repo-url>
+    cd EduPlayRural
+    ```
+
+2. **Virtual environment setup:**
+    ```
+    python -m venv venv
+    # Windows:
+    venv\Scripts\activate
+    # Linux/Mac:
+    source venv/bin/activate
+    ```
+
+3. **Dependencies install karo:**
+    ```
+    pip install -r requirements.txt
+    ```
+
+4. **Run database migrations (agar Django hai):**
+    ```
+    python manage.py migrate
+    ```
+
+5. **Start development server:**
+    ```
+    python manage.py runserver
+    ```
+
+6. **App access:**
+    open your browser and copy paste your `http://localhost:8000`
 
 
-Linux / macOS
-bassh
-source venv/bin/activate
-
-4️⃣ Install Dependencies
-bash
-pip install -r requirements.txt
 
 
-(If you don’t have a requirements.txt, I can generate one for you.)
 
-5️⃣ Run Migrations
-bash
-python manage.py migrate
 
-6️⃣ Start the Server
-bash
-python manage.py runserver
 
