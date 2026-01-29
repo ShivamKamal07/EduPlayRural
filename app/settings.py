@@ -25,7 +25,11 @@ SECRET_KEY = 'django-insecure-v!8ula^%lhcl%in*7bmlx-#1f$2v28^_0^i@h8h^@*erjivu!^
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'eduplayrural.onrender.com',
+    'localhost',
+    '127.0.0.1'
+]
 
 
 # Application definition
