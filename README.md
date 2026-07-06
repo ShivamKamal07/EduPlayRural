@@ -2,6 +2,8 @@
 
 EduPlayRural ek web-based educational app hai jo rural students ke liye subjects, quizzes, progress tracking, smart notebook, leaderboard, chatbot aur bhi bahut kuch access karna aasan banata hai. Dashboard Hindi aur English dono languages support karta hai aur students ke liye ek personalized learning experience provide karta hai.
 
+demo link --> https://eduplayrural.onrender.com
+
 ## Features
 
 - **User Dashboard:** Personalized welcome, class info, board, language, and selected subjects.
